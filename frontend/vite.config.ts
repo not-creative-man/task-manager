@@ -16,10 +16,20 @@ export default defineConfig({
     }
   },
   build: {
-    // Используем esbuild вместо rollup
     minify: 'esbuild',
-    rollupOptions: {
-      external: []
+    target: 'esnext',
+    sourcemap: true,
+    outDir: 'dist',
+    assetsDir: 'assets',
+    emptyOutDir: true,
+    cssCodeSplit: true,
+    modulePreload: {
+      polyfill: true
+    }
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      target: 'esnext'
     }
   }
 })
