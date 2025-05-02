@@ -50,10 +50,7 @@ jobs:
     # Frontend steps
     - name: Install Frontend Dependencies
       working-directory: ./frontend
-      run: |
-        npm config set platform linux
-        npm config set arch x64
-        npm ci
+      run: npm ci --no-optional
 
     - name: Type Check Frontend
       working-directory: ./frontend
