@@ -52,6 +52,25 @@ jobs:
       working-directory: ./frontend
       run: npm install
 
+    - name: Run Frontend Tests
+      working-directory: ./frontend
+      run: npm run test:coverage
+
     - name: Build Frontend
       working-directory: ./frontend
-      run: npm run build 
+      run: npm run build
+
+    # Upload test coverage
+    - name: Upload Backend Coverage
+      uses: codecov/codecov-action@v3
+      with:
+        directory: ./backend/coverage
+        flags: backend
+        name: backend-coverage
+
+    - name: Upload Frontend Coverage
+      uses: codecov/codecov-action@v3
+      with:
+        directory: ./frontend/coverage
+        flags: frontend
+        name: frontend-coverage 
