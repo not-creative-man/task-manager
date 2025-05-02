@@ -6,7 +6,7 @@ const options = {
   database: "my_db",
 }
 
-module.exports = options;
+export default options;
 
 //MYSQL_ROOT_PASSWORD
 //MYSQL_ALLOW_EMPTY_PASSWORD

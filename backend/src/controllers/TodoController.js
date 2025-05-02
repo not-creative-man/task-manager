@@ -63,5 +63,3 @@ class TodoController {
 }
 
 export default new TodoController();
-
-//module.exports = new UserController();

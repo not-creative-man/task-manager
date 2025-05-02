@@ -1,5 +1,5 @@
 import UserService from '../services/UserService.js';
-import res from 'express/lib/response.js'
+import res from 'express/lib/response.js';
 
 class UserController {
   async register(req, res) {
@@ -34,5 +34,3 @@ class UserController {
 }
 
 export default new UserController();
-
-//module.exports = new UserController();

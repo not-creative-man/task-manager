@@ -1,0 +1,104 @@
+name: CI
+
+on:
+  push:
+    branches: [ '*' ]
+  pull_request:
+    branches: [ '*' ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: my_db
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    # Backend steps
+    - name: Install Backend Dependencies
+      run: |
+        cd backend
+        npm ci
+
+    - name: Run Backend Linter
+      run: |
+        cd backend
+        npm run lint || true  # Добавьте скрипт lint в package.json если его нет
+
+    - name: Run Backend Tests
+      run: |
+        cd backend
+        npm test
+      env:
+        DB_HOST: localhost
+        DB_USER: root
+        DB_PASSWORD: password
+        DB_NAME: my_db
+        NODE_ENV: test
+
+    # Frontend steps
+    - name: Install Frontend Dependencies
+      run: |
+        cd frontend
+        npm ci
+
+    - name: Type Check Frontend
+      run: |
+        cd frontend
+        npm run type-check
+
+    - name: Run Frontend Linter
+      run: |
+        cd frontend
+        npm run lint || true  # Добавьте скрипт lint в package.json если его нет
+
+    - name: Build Frontend
+      run: |
+        cd frontend
+        npm run build
+
+    - name: Run Frontend Tests
+      run: |
+        cd frontend
+        npm test
+
+    # Cache test results
+    - name: Cache test results
+      uses: actions/cache@v3
+      with:
+        path: |
+          backend/coverage
+          frontend/coverage
+        key: ${{ runner.os }}-test-results-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-test-results-
+
+    # Upload test coverage
+    - name: Upload Backend Coverage
+      uses: codecov/codecov-action@v3
+      with:
+        directory: ./backend/coverage
+        flags: backend
+        name: backend-coverage
+
+    - name: Upload Frontend Coverage
+      uses: codecov/codecov-action@v3
+      with:
+        directory: ./frontend/coverage
+        flags: frontend
+        name: frontend-coverage 
