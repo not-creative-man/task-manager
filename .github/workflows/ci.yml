@@ -27,23 +27,19 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: '18'
-        cache: 'npm'
 
     # Backend steps
     - name: Install Backend Dependencies
-      run: |
-        cd backend
-        npm ci
+      working-directory: ./backend
+      run: npm ci
 
     - name: Run Backend Linter
-      run: |
-        cd backend
-        npm run lint || true  # Добавьте скрипт lint в package.json если его нет
+      working-directory: ./backend
+      run: npm run lint || true
 
     - name: Run Backend Tests
-      run: |
-        cd backend
-        npm test
+      working-directory: ./backend
+      run: npm test
       env:
         DB_HOST: localhost
         DB_USER: root
@@ -53,29 +49,24 @@ jobs:
 
     # Frontend steps
     - name: Install Frontend Dependencies
-      run: |
-        cd frontend
-        npm ci
+      working-directory: ./frontend
+      run: npm ci
 
     - name: Type Check Frontend
-      run: |
-        cd frontend
-        npm run type-check
+      working-directory: ./frontend
+      run: npm run type-check
 
     - name: Run Frontend Linter
-      run: |
-        cd frontend
-        npm run lint || true  # Добавьте скрипт lint в package.json если его нет
+      working-directory: ./frontend
+      run: npm run lint || true
 
     - name: Build Frontend
-      run: |
-        cd frontend
-        npm run build
+      working-directory: ./frontend
+      run: npm run build
 
     - name: Run Frontend Tests
-      run: |
-        cd frontend
-        npm test
+      working-directory: ./frontend
+      run: npm test
 
     # Cache test results
     - name: Cache test results
