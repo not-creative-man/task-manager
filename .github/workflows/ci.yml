@@ -27,6 +27,7 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: '18'
+        cache: 'npm'
 
     # Backend steps
     - name: Install Backend Dependencies
@@ -50,7 +51,7 @@ jobs:
     # Frontend steps
     - name: Install Frontend Dependencies
       working-directory: ./frontend
-      run: npm ci --no-optional
+      run: npm ci
 
     - name: Type Check Frontend
       working-directory: ./frontend
