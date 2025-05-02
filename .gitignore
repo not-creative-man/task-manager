@@ -1,0 +1,11 @@
+# Игнорировать все папки node_modules на любом уровне вложенности
+**/node_modules/
+
+# Дополнительные правила для проектов на Node.js/Vue
+.env
+.env.local
+.DS_Store
+dist/
+*.log
+.idea/
+.vscode/
