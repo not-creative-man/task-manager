@@ -2,14 +2,14 @@ version: '3.8'
 
 services:
   mysql:
-    image: mysql:8.0  # Используем готовый образ
-    restart: always  # Автоматически перезапускаем контейнер при падении
+    image: mysql:8.0
+    restart: always
     environment:
       - MYSQL_ROOT_PASSWORD=password
       - MYSQL_DATABASE=my_db
     volumes:
-      - mysql_data:/var/lib/mysql  # Постоянное хранилище данных
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql  # Только для первой инициализации
+      - mysql_data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "3306:3306"
     healthcheck:
@@ -19,9 +19,9 @@ services:
       retries: 5
 
   backend:
-    build: ./backend  # Путь к папке с бэкендом
+    build: ./backend
     volumes:
-      - ./backend/src:/app/src  # Привязка папки с кодом
+      - ./backend/src:/app/src
     command: node --inspect=0.0.0.0:9229 src/app.js
     ports:
       - "3000:3000"
@@ -36,9 +36,9 @@ services:
 
 
   frontend:
-    build: ./frontend  # Путь к папке с фронтендом
+    build: ./frontend
     ports:
-      - "8080:80"  # Nginx слушает 80, пробрасываем на 8080
+      - "8080:80"
 
 volumes:
   mysql_data:
