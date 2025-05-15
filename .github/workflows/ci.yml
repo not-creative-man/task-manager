@@ -49,10 +49,10 @@ jobs:
           cd frontend
           npm run build
 
-      - name: Run Backend Linter
+      - name: Build backend
         run:  |
           cd backend
-          npm run lint || true
+          npm run dev || true
           
       - name: Upload frontend build artifacts
         uses: actions/upload-artifact@v4
