@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.3'
 
 services:
   mysql:
@@ -31,9 +31,7 @@ services:
       - DB_USER=root
       - DB_PASSWORD=password
     depends_on:
-      mysql:
-        condition: service_healthy
-
+      - mysql
 
   frontend:
     build: ./frontend
