@@ -13,10 +13,11 @@ services:
     ports:
       - "3306:3306"
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppassword"]
       interval: 5s
       timeout: 10s
       retries: 5
+      start_period: 30s
 
   backend:
     build: ./backend
@@ -31,7 +32,8 @@ services:
       - DB_USER=root
       - DB_PASSWORD=password
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
 
   frontend:
     build: ./frontend
