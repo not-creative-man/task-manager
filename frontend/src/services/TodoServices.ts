@@ -1,6 +1,6 @@
 import type TasksInterface from '@/interfaces/TasksInterface.ts'
 
-const API_URL = "http://localhost:3000";
+const API_URL = "http://51.250.85.137:3000";
 
 class TodoServices{
   async getTasks(userId: string|string[]) {
