@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     password varchar(255) not null,
     email varchar(255) unique not null,
     active timestamp,
-    token varchar(255) unique not null,
+    token varchar(255) unique
 );
 
 CREATE TABLE IF NOT EXISTS tasks (

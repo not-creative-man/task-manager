@@ -1,8 +1,8 @@
 terraform {
   required_providers {
     yandex = {
-      source = "yandex-cloud/yandex"
-      version = "~> 0.13"
+      source  = "yandex-cloud/yandex"
+      version = "~> 0.142.0"
     }
   }
 }
@@ -15,7 +15,7 @@ provider "yandex" {
 }
 
 resource "yandex_compute_instance" "vm" {
-  name        = "my-vm"
+  name        = "my-vm-new"
   platform_id = "standard-v1"
 
   resources {
@@ -25,8 +25,8 @@ resource "yandex_compute_instance" "vm" {
 
   boot_disk {
     initialize_params {
-      image_id = "fd81hgrcv6lsnkremf32"
-      size     = 20
+      image_id = "fd80qm01ah03dkqb14lc"  # Ubuntu 20.04 LTS
+      size     = 30
     }
   }
 
@@ -36,16 +36,30 @@ resource "yandex_compute_instance" "vm" {
   }
 
   metadata = {
-    ssh-keys = "ubuntu:${file("C:\\Users\\vanya\\.ssh\\id_rsa.pub")}"
+    ssh-keys = <<-EOT
+      ubuntu:${file("~/.ssh/yandex_cloud.pub")}
+      ubuntu:${file("~/.ssh/yandex_cloud_new.pub")}
+    EOT
+    user-data = <<-EOT
+      #cloud-config
+      users:
+        - name: ubuntu
+          sudo: ALL=(ALL) NOPASSWD:ALL
+          shell: /bin/bash
+          ssh_authorized_keys:
+            - ${file("~/.ssh/yandex_cloud.pub")}
+            - ${file("~/.ssh/yandex_cloud_new.pub")}
+      ssh_pwauth: false
+    EOT
   }
 }
 
 resource "yandex_vpc_network" "network" {
-  name = "my-network"
+  name = "my-network-new"
 }
 
 resource "yandex_vpc_subnet" "subnet" {
-  name           = "my-subnet"
+  name           = "my-subnet-new"
   zone           = "ru-central1-a"
   network_id     = yandex_vpc_network.network.id
   v4_cidr_blocks = ["192.168.10.0/24"]

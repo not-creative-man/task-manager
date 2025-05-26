@@ -17,7 +17,6 @@ services:
       interval: 5s
       timeout: 10s
       retries: 5
-      start_period: 30s
 
   backend:
     build: ./backend
@@ -32,8 +31,7 @@ services:
       - DB_USER=root
       - DB_PASSWORD=password
     depends_on:
-      mysql:
-        condition: service_healthy
+      - mysql
 
   frontend:
     build: ./frontend
