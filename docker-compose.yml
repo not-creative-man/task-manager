@@ -19,7 +19,7 @@ services:
       retries: 5
 
   backend:
-    build: ./backend
+    image: ${REGISTRY_HOST:-cr.yandex}/task-manager-backend:latest
     volumes:
       - ./backend/src:/app/src
     command: node --inspect=0.0.0.0:9229 src/app.js
@@ -34,7 +34,7 @@ services:
       - mysql
 
   frontend:
-    build: ./frontend
+    image: ${REGISTRY_HOST:-cr.yandex}/task-manager-frontend:latest
     ports:
       - "8080:80"
 

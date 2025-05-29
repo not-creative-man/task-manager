@@ -15,7 +15,7 @@ provider "yandex" {
 }
 
 resource "yandex_compute_instance" "vm" {
-  name        = "my-vm-new"
+  name        = "task-manager-vm"
   platform_id = "standard-v1"
 
   resources {
@@ -50,21 +50,60 @@ resource "yandex_compute_instance" "vm" {
             - ${file("~/.ssh/yandex_cloud.pub")}
             - ${file("~/.ssh/yandex_cloud_new.pub")}
       ssh_pwauth: false
+
+      # Install Docker
+      package_update: true
+      package_upgrade: true
+      packages:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - software-properties-common
+        - gnupg
+
+      runcmd:
+        # Add Docker's official GPG key
+        - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+        # Add Docker repository
+        - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        # Install Docker
+        - apt-get update
+        - apt-get install -y docker-ce docker-ce-cli containerd.io
+        # Add ubuntu user to docker group
+        - usermod -aG docker ubuntu
+        # Start and enable Docker service
+        - systemctl start docker
+        - systemctl enable docker
+        # Install Docker Compose
+        - curl -L "https://github.com/docker/compose/releases/download/v2.24.6/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        - chmod +x /usr/local/bin/docker-compose
     EOT
   }
 }
 
 resource "yandex_vpc_network" "network" {
-  name = "my-network-new"
+  name = "task-manager-network"
 }
 
 resource "yandex_vpc_subnet" "subnet" {
-  name           = "my-subnet-new"
+  name           = "task-manager-subnet"
   zone           = "ru-central1-a"
   network_id     = yandex_vpc_network.network.id
   v4_cidr_blocks = ["192.168.10.0/24"]
 }
 
+resource "yandex_container_registry" "registry" {
+  name = "task-manager-registry"
+}
+
 output "external_ip" {
   value = yandex_compute_instance.vm.network_interface[0].nat_ip_address
+}
+
+output "registry_id" {
+  value = yandex_container_registry.registry.id
+}
+
+output "registry_url" {
+  value = "cr.yandex/${yandex_container_registry.registry.id}"
 } 
