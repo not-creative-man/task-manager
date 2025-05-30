@@ -3,8 +3,7 @@ CREATE TABLE IF NOT EXISTS users (
     nickname varchar(255) not null,
     password varchar(255) not null,
     email varchar(255) unique not null,
-    active timestamp,
-    token varchar(255) unique not null,
+    active timestamp
 );
 
 CREATE TABLE IF NOT EXISTS tasks (
