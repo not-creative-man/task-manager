@@ -1,4 +1,4 @@
-const API_URL = "http://51.250.85.137:3000";
+const API_URL = "http://51.250.2.92:3000";
 
 class UserServices {
    async login(email: string, password: string) {
