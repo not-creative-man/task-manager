@@ -21,6 +21,7 @@ services:
 
   backend:
     image: ${REGISTRY_HOST:-cr.yandex}/task-manager-backend:latest
+    platform: linux/amd64
     volumes:
       - ./backend/src:/app/src
     command: node --inspect=0.0.0.0:9229 src/app.js
@@ -36,6 +37,7 @@ services:
 
   frontend:
     image: ${REGISTRY_HOST:-cr.yandex}/task-manager-frontend:latest
+    platform: linux/amd64
     ports:
       - "8080:80"
 
