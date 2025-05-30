@@ -21,14 +21,10 @@ yc container registry configure-docker
 
 # Build and push backend image
 echo "Building backend image..."
-docker build -t $REGISTRY_HOST/task-manager-backend:latest ./backend
-echo "Pushing backend image..."
-docker push $REGISTRY_HOST/task-manager-backend:latest
+docker buildx build --platform linux/amd64,linux/arm64 -t $REGISTRY_HOST/task-manager-backend:latest ./backend --push
 
 # Build and push frontend image
 echo "Building frontend image..."
-docker build -t $REGISTRY_HOST/task-manager-frontend:latest ./frontend
-echo "Pushing frontend image..."
-docker push $REGISTRY_HOST/task-manager-frontend:latest
+docker buildx build --platform linux/amd64,linux/arm64 -t $REGISTRY_HOST/task-manager-frontend:latest ./frontend --push
 
 echo "All images have been built and pushed successfully!" 
