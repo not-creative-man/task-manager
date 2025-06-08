@@ -6,13 +6,14 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=password
       - MYSQL_DATABASE=my_db
+      - HOST=${HOST:-localhost}
     volumes:
       - mysql_data:/var/lib/mysql
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "3306:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppassword"]
+      test: ["CMD", "mysqladmin", "ping", "-h", ${HOST}, "-u", "root", "-ppassword"]
       interval: 5s
       timeout: 10s
       retries: 5
@@ -30,6 +31,12 @@ services:
       - DB_HOST=mysql
       - DB_USER=root
       - DB_PASSWORD=password
+      - HOST=${HOST:-localhost}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://${HOST}:3000/health"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
     depends_on:
       - mysql
 
@@ -38,6 +45,15 @@ services:
     platform: linux/amd64
     ports:
       - "8080:80"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://${HOST}:8080/health"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    depends_on:
+      - backend
+    environment:
+      - HOST=${HOST:-localhost}
 
 volumes:
   mysql_data:

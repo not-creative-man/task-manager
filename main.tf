@@ -15,18 +15,18 @@ provider "yandex" {
 }
 
 resource "yandex_compute_instance" "vm" {
-  name        = "task-manager-vm"
+  name        = "task-manager-vm-new"
   platform_id = "standard-v1"
 
   resources {
     cores  = 2
-    memory = 4
+    memory = 6
   }
 
   boot_disk {
     initialize_params {
       image_id = "fd80qm01ah03dkqb14lc"  # Ubuntu 20.04 LTS
-      size     = 30
+      size     = 35
     }
   }
 
