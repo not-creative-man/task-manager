@@ -1,14 +1,12 @@
-const API_URL = "http://51.250.2.92:3000";
-
 class UserServices {
    async login(email: string, password: string) {
-     const response = await fetch(API_URL + "/api/user/login?email=" + email + "&password=" + password);
+     const response = await fetch("/api/user/login?email=" + email + "&password=" + password);
      return await response.json();
    }
 
    async register(nickname: string, password: string, email: string) {
      const body = JSON.stringify({ nickname, password, email })
-     const response = await fetch(API_URL + "/api/user/register", {
+     const response = await fetch("/api/user/register", {
        method: "POST",
        headers: {
          'Content-Type': 'application/json' // Этот заголовок важен

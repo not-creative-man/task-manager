@@ -3,6 +3,7 @@ services:
     image: mysql:5.7
     platform: linux/amd64
     restart: always
+    command: --default-authentication-plugin=mysql_native_password
     environment:
       - MYSQL_ROOT_PASSWORD=password
       - MYSQL_DATABASE=my_db
@@ -13,7 +14,7 @@ services:
     ports:
       - "3306:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", ${HOST}, "-u", "root", "-ppassword"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppassword"]
       interval: 5s
       timeout: 10s
       retries: 5
@@ -33,7 +34,7 @@ services:
       - DB_PASSWORD=password
       - HOST=${HOST:-localhost}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://${HOST}:3000/health"]
+      test: "CMD curl -f http://${HOST}:3000/health"
       interval: 5s
       timeout: 10s
       retries: 5
@@ -41,19 +42,20 @@ services:
       - mysql
 
   frontend:
-    image: ${REGISTRY_HOST:-cr.yandex}/task-manager-frontend:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
     platform: linux/amd64
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     ports:
-      - "8080:80"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://${HOST}:8080/health"]
-      interval: 5s
-      timeout: 10s
-      retries: 5
-    depends_on:
-      - backend
+      - "8080:8080"
     environment:
       - HOST=${HOST:-localhost}
+      - VITE_API_URL=http://${HOST:-localhost}:3000
+    depends_on:
+      - backend
 
 volumes:
   mysql_data:

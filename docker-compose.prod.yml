@@ -1,0 +1,54 @@
+services:
+  mysql:
+    image: mysql:5.7
+    platform: linux/amd64
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=my_db
+      - HOST=51.250.14.170
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppassword"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+  backend:
+    image: task-manager-backend:latest
+    platform: linux/amd64
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=mysql
+      - DB_USER=root
+      - DB_PASSWORD=password
+      - HOST=51.250.14.170
+    healthcheck:
+      test: "CMD curl -f http://localhost:3000/health"
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    depends_on:
+      - mysql
+
+  frontend:
+    image: task-manager-frontend:latest
+    platform: linux/amd64
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      - HOST=51.250.14.170
+      - VITE_API_URL=http://51.250.14.170:3000
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:

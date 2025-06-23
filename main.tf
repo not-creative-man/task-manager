@@ -50,33 +50,34 @@ resource "yandex_compute_instance" "vm" {
             - ${file("~/.ssh/yandex_cloud.pub")}
             - ${file("~/.ssh/yandex_cloud_new.pub")}
       ssh_pwauth: false
+    EOT
+  }
 
-      # Install Docker
-      package_update: true
-      package_upgrade: true
-      packages:
-        - apt-transport-https
-        - ca-certificates
-        - curl
-        - software-properties-common
-        - gnupg
+  # Wait for the instance to be ready
+  provisioner "remote-exec" {
+    inline = ["echo 'Waiting for cloud-init to complete...'", "cloud-init status --wait"]
 
-      runcmd:
-        # Add Docker's official GPG key
-        - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-        # Add Docker repository
-        - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-        # Install Docker
-        - apt-get update
-        - apt-get install -y docker-ce docker-ce-cli containerd.io
-        # Add ubuntu user to docker group
-        - usermod -aG docker ubuntu
-        # Start and enable Docker service
-        - systemctl start docker
-        - systemctl enable docker
-        # Install Docker Compose
-        - curl -L "https://github.com/docker/compose/releases/download/v2.24.6/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-        - chmod +x /usr/local/bin/docker-compose
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file("~/.ssh/yandex_cloud")
+      host        = self.network_interface[0].nat_ip_address
+    }
+  }
+
+  # Run Ansible playbook
+  provisioner "local-exec" {
+    command = <<-EOT
+      cat > ansible/inventory.yml << 'EOF'
+all:
+  hosts:
+    task-manager-vm:
+      ansible_host: ${self.network_interface[0].nat_ip_address}
+      ansible_user: ubuntu
+      ansible_ssh_private_key_file: ~/.ssh/yandex_cloud
+EOF
+      # Run Ansible playbook
+      ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ansible/inventory.yml ansible/install_docker.yml
     EOT
   }
 }

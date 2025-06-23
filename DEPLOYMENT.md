@@ -1,107 +1,125 @@
-# Развертывание Task Manager
+# Развертывание Task Manager на виртуальной машине
 
 ## Предварительные требования
 
-1. Установленный Terraform (версия >= 1.0.0)
-2. Установленный Yandex Cloud CLI (yc)
-3. Настроенный доступ к Yandex Cloud (токен, cloud_id, folder_id)
-4. SSH-ключи для доступа к виртуальной машине
+На виртуальной машине должны быть установлены:
+- Docker
+- Docker Compose
+- Git (опционально)
 
-## Шаги развертывания
+## Способ 1: Передача через образы (рекомендуемый)
 
-### 1. Настройка Terraform
+### На локальной машине:
 
-1. Убедитесь, что у вас есть все необходимые переменные в `main.tf`:
-   - token
-   - cloud_id
-   - folder_id
-   - SSH-ключи
-
-2. Инициализируйте Terraform:
+1. **Экспорт образов:**
    ```bash
-   terraform init
+   chmod +x export-images.sh
+   ./export-images.sh
    ```
 
-3. Примените конфигурацию:
+2. **Передача файлов на VM:**
    ```bash
-   terraform apply
+   # Через SCP
+   scp task-manager-images.tar.gz user@vm-ip:/path/to/destination/
+   scp docker-compose.prod.yml user@vm-ip:/path/to/destination/
+   scp import-images.sh user@vm-ip:/path/to/destination/
+   
+   # Или через rsync
+   rsync -avz task-manager-images.tar.gz docker-compose.prod.yml import-images.sh user@vm-ip:/path/to/destination/
    ```
 
-4. После успешного применения сохраните вывод команды, особенно:
-   - external_ip (IP-адрес виртуальной машины)
-   - registry_url (URL Container Registry)
+### На виртуальной машине:
 
-### 2. Настройка Container Registry
-
-1. Создайте файл `.env` в корневой директории проекта:
+1. **Импорт образов:**
    ```bash
-   REGISTRY_HOST=<registry_url_from_terraform_output>
+   chmod +x import-images.sh
+   ./import-images.sh
    ```
 
-2. Убедитесь, что вы авторизованы в Yandex Cloud CLI:
+2. **Запуск приложения:**
    ```bash
-   yc init
+   docker-compose -f docker-compose.prod.yml up -d
    ```
 
-### 3. Сборка и публикация Docker-образов
-
-1. Запустите скрипт сборки и публикации:
+3. **Проверка статуса:**
    ```bash
-   ./build-and-push.sh
+   docker-compose -f docker-compose.prod.yml ps
    ```
 
-### 4. Запуск приложения
+## Способ 2: Передача исходного кода
 
-1. Подключитесь к виртуальной машине:
+### На локальной машине:
+
+1. **Архивирование проекта:**
    ```bash
-   ssh ubuntu@<external_ip>
+   tar -czf task-manager-source.tar.gz --exclude=node_modules --exclude=.git .
    ```
 
-2. Клонируйте репозиторий на виртуальную машину:
+2. **Передача на VM:**
    ```bash
-   git clone <repository_url>
+   scp task-manager-source.tar.gz user@vm-ip:/path/to/destination/
+   ```
+
+### На виртуальной машине:
+
+1. **Распаковка и сборка:**
+   ```bash
+   tar -xzf task-manager-source.tar.gz
    cd task-manager
+   docker-compose up -d --build
    ```
 
-3. Создайте файл `.env` с настройками Container Registry:
+## Способ 3: Использование Docker Registry
+
+### Настройка приватного registry:
+
+1. **Создание registry:**
    ```bash
-   echo "REGISTRY_HOST=<registry_host>" > .env
+   docker run -d -p 5000:5000 --name registry registry:2
    ```
 
-4. Запустите приложение:
+2. **Публикация образов:**
    ```bash
-   docker-compose up -d
+   docker tag task-manager-frontend:latest localhost:5000/task-manager-frontend:latest
+   docker push localhost:5000/task-manager-frontend:latest
+   ```
+
+3. **На VM - загрузка образов:**
+   ```bash
+   docker pull localhost:5000/task-manager-frontend:latest
    ```
 
 ## Проверка работоспособности
 
-1. Frontend доступен по адресу: `http://<external_ip>:8080`
-2. Backend API доступен по адресу: `http://<external_ip>:3000`
-3. MySQL доступен на порту 3306 (только локально)
+После запуска проверьте:
 
-## Обновление приложения
+- **Frontend:** http://vm-ip:8080
+- **Backend API:** http://vm-ip:3000/api/health
+- **MySQL:** vm-ip:3306
 
-1. Внесите необходимые изменения в код
-2. Запустите скрипт сборки и публикации:
-   ```bash
-   ./build-and-push.sh
-   ```
-3. На виртуальной машине обновите образы:
-   ```bash
-   docker-compose pull
-   docker-compose up -d
-   ```
+## Переменные окружения
 
-## Удаление инфраструктуры
-
-Для удаления всей созданной инфраструктуры выполните:
-```bash
-terraform destroy
+Создайте файл `.env` на VM:
+```env
+HOST=vm-ip-address
+REGISTRY_HOST=your-registry-host
 ```
 
-## Безопасность
+## Мониторинг
 
-- Все пароли и чувствительные данные хранятся в переменных окружения
-- SSH-доступ настроен только по ключам
-- Docker-образы хранятся в приватном Container Registry
-- База данных доступна только внутри Docker-сети 
+```bash
+# Логи контейнеров
+docker-compose -f docker-compose.prod.yml logs -f
+
+# Статистика ресурсов
+docker stats
+
+# Проверка здоровья
+docker-compose -f docker-compose.prod.yml ps
+```
+
+## Troubleshooting
+
+1. **Проблемы с портами:** Убедитесь, что порты 8080, 3000, 3306 открыты
+2. **Проблемы с памятью:** Увеличьте лимиты Docker или добавьте swap
+3. **Проблемы с сетью:** Проверьте firewall и настройки сети 

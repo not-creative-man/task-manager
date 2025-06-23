@@ -1,6 +1,6 @@
 import type TasksInterface from '@/interfaces/TasksInterface.ts'
 
-const API_URL = "http://51.250.2.92:3000";
+const API_URL = import.meta.env.VITE_API_URL;
 
 class TodoServices{
   async getTasks(userId: string|string[]) {
