@@ -1,0 +1,35 @@
+---
+- name: Create application directory
+  file:
+    path: "{{ app_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Copy docker-compose.prod.yml
+  template:
+    src: docker-compose.prod.yml.j2
+    dest: "{{ app_dir }}/docker-compose.yml"
+    mode: '0644'
+
+#- name: Pull Docker images
+#  community.docker.docker_compose_v2:
+#    project_src: "{{ app_dir }}"
+#    pull: "always"
+#    files:
+#      - "{{ app_dir }}/docker-compose.yml"
+#    build: false
+#    recreate: false
+#  register: pull_result
+#  until: pull_result is not failed
+#  retries: 3
+#  delay: 10
+#  when:
+#    - not skip_pull | default(false)
+
+- name: Start containers
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_dir }}"
+    state: present
+    recreate: always
+    files:
+      - "{{ app_dir }}/docker-compose.yml"

@@ -1,6 +1,7 @@
 all:
   hosts:
     task-manager-vm:
-      ansible_host: 51.250.14.170
+      ansible_host: 89.169.147.115
       ansible_user: ubuntu
       ansible_ssh_private_key_file: ~/.ssh/yandex_cloud
+      ansible_python_interpreter: /usr/bin/python3

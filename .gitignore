@@ -4,8 +4,13 @@
 # Дополнительные правила для проектов на Node.js/Vue
 .env
 .env.local
+.env.backup
 .DS_Store
 dist/
 *.log
 .idea/
 .vscode/
+**/.terraform.lock.hcl
+**/.terraform/
+**/terraform.tfstate
+**/terraform.tfstate.backup

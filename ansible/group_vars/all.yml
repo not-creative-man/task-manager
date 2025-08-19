@@ -1,0 +1,16 @@
+# Настройки Yandex Container Registry
+yc_registry: cr.yandex
+yc_registry_id: crp8drap0ujcoe799m6v  # ID вашего реестра
+yc_image_prefix: "{{ yc_registry }}/{{ yc_registry_id }}"
+
+# Настройки приложения
+app_name: task-manager
+app_dir: /opt/{{ app_name }}
+
+# Образы контейнеров
+backend_image: "{{ yc_image_prefix }}/task-manager-backend:latest"
+frontend_image: "{{ yc_image_prefix }}/task-manager-frontend:latest"
+mysql_image: mysql:5.7
+
+# Настройки docker-compose
+docker_compose_version: "1.29.2"

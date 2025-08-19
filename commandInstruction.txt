@@ -1,10 +1,18 @@
-ssh -i ~/.ssh/yandex_cloud_new ubuntu@51.250.14.170 # для запуска подключения к виртуалке
+ssh -i ~/.ssh/yandex_cloud_new ubuntu@89.169.147.115 # для запуска подключения к виртуалке
 
 # порядок запуска виртуалок
 terraform init
 terraform plan
 terraform apply
 terraform output external_ip # для получения ip виртуалки
+# после апплая
+terraform output -raw vm_public_ip
+ssh -i ~/.ssh/yandex_cloud ubuntu@$(terraform output -raw vm_public_ip)
+
+
+yc iam create-token  -  создание токена
+# nat_ip_address     = yandex_vpc_address.static_ip.external_ipv4_address[0].address  -  добавить в network_interface {}
+
 yc container registry configure-docker # Авторизация в Container Registry
 
 # Сборка и отправка образов в реестр
@@ -20,4 +28,4 @@ chmod +x deploy-local-images.sh
 ./deploy-local-images.sh
 
 # Для передачи образов на виртуалку
-./deploy-to-vm.sh ubuntu@51.250.14.170 /home/ubuntu/task-manager
+./deploy-to-vm.sh ubuntu@89.169.147.115 /home/ubuntu/task-manager

@@ -7,7 +7,7 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=password
       - MYSQL_DATABASE=my_db
-      - HOST=51.250.14.170
+      - HOST=89.169.147.115
     volumes:
       - mysql_data:/var/lib/mysql
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -20,7 +20,7 @@ services:
       retries: 5
 
   backend:
-    image: task-manager-backend:latest
+    image: backend:latest
     platform: linux/amd64
     restart: always
     ports:
@@ -29,7 +29,7 @@ services:
       - DB_HOST=mysql
       - DB_USER=root
       - DB_PASSWORD=password
-      - HOST=51.250.14.170
+      - HOST=89.169.147.115
     healthcheck:
       test: "CMD curl -f http://localhost:3000/health"
       interval: 5s
@@ -39,14 +39,14 @@ services:
       - mysql
 
   frontend:
-    image: task-manager-frontend:latest
+    image: frontend:latest
     platform: linux/amd64
     restart: always
     ports:
       - "8080:80"
     environment:
-      - HOST=51.250.14.170
-      - VITE_API_URL=http://51.250.14.170:3000
+      - HOST=89.169.147.115
+      - VITE_API_URL=http://89.169.147.115:3000
     depends_on:
       - backend
 

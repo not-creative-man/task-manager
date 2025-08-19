@@ -1,0 +1,42 @@
+---
+- name: Ensure .docker directory exists
+  file:
+    path: /root/.docker
+    state: directory
+    mode: '0700'
+
+- name: Create Docker config for Yandex Container Registry
+  copy:
+    dest: /root/.docker/config.json
+    content: |
+      {
+        "auths": {
+          "{{ yc_registry }}": {
+            "auth": "{{ lookup('env', 'YC_DOCKER_AUTH') }}"
+          }
+        }
+      }
+    mode: '0600'
+
+#- name: Configure Docker auth for Yandex Container Registry
+#  become: yes
+#  community.docker.docker_login:
+#    registry_url: cr.yandex
+#    username: iam  # для IAM-токена
+#    password: "t1.9euelZrImZ3Myp7GkMuZzpmaiYvGle3rnpWayc-UzJOKnoyKyZDOl8jOzJbl8_dhDHI6-e9tbjFN_d3z9yE7bzr5721uMU39zef1656Vms-JmI6ezZiLjo-Rl5yXysib7_zF656Vms-JmI6ezZiLjo-Rl5yXysib.77M-4V_f-CXHM6v4eI8rtD_zJj_jbJ4UOZvkF37IKHlGNwc2k-iv-VrU4t2RFX_5zS_0Kja2cnOEQuEzvF6EDQ"  # или oauth2:YOUR_OAUTH_TOKEN
+#    config_path: /root/.docker/config.json
+
+#- name: Ensure correct Docker config exists
+#  become: yes
+#  block:
+#    - name: Remove invalid config if exists
+#      file:
+#        path: /root/.docker/config.json
+#        state: absent
+#      when: '"Invalid auth configuration file" in ansible_failed_result.stderr'
+#
+#    - name: Create proper Docker config
+#      community.docker.docker_login:
+#        registry_url: cr.yandex
+#        username: iam
+#        password: "t1.9euelZrImZ3Myp7GkMuZzpmaiYvGle3rnpWayc-UzJOKnoyKyZDOl8jOzJbl8_dhDHI6-e9tbjFN_d3z9yE7bzr5721uMU39zef1656Vms-JmI6ezZiLjo-Rl5yXysib7_zF656Vms-JmI6ezZiLjo-Rl5yXysib.77M-4V_f-CXHM6v4eI8rtD_zJj_jbJ4UOZvkF37IKHlGNwc2k-iv-VrU4t2RFX_5zS_0Kja2cnOEQuEzvF6EDQ"

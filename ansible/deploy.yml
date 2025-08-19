@@ -1,0 +1,8 @@
+---
+- name: Deploy Task Manager to Yandex Cloud
+  hosts: all
+  become: yes
+
+  roles:
+    - role: yc-auth
+    - role: deploy

@@ -1,0 +1,120 @@
+---
+- name: Install Docker and Docker Compose
+  hosts: all
+  become: yes
+  gather_facts: no
+  strategy: free
+
+  tasks:
+    - name: Ensure connection stability
+      meta: reset_connection
+      when: ansible_loop_index % 3 == 0  # Сбрасывает соединение каждые 3 задачи
+
+    - name: Ensure Python is installed
+      raw: test -e /usr/bin/python3 || (apt-get update && apt-get install -y python3)
+    - name: Gather facts after Python is installed
+      setup:
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      become: yes
+
+    - name: Install required packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - gnupg
+          - python3-pip
+        state: present
+        update_cache: yes
+      become: yes
+      register: apt_result
+      until: apt_result is succeeded
+      retries: 3
+      delay: 10
+      timeout: 300
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker APT repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Update apt package cache (again)
+      apt:
+        update_cache: yes
+
+    - name: Install Docker packages
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+        state: present
+        update_cache: yes
+      async: 600  # Максимальное время выполнения (10 мин)
+      poll: 0     # Не ждём завершения (фоновый режим)
+      register: docker_install
+
+    - name: Wait for Docker installation
+      async_status:
+        jid: "{{ docker_install.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      retries: 30
+      delay: 10
+
+    - name: Install Docker Compose v2
+      get_url:
+        url: "https://github.com/docker/compose/releases/download/v2.24.6/docker-compose-linux-x86_64"
+        dest: /usr/libexec/docker/cli-plugins/docker-compose
+        mode: '0755'
+      register: download_compose
+
+    - name: Create symlink for Docker Compose (legacy compatibility)
+      file:
+        src: /usr/libexec/docker/cli-plugins/docker-compose
+        dest: /usr/local/bin/docker-compose
+        state: link
+        force: yes
+      when: download_compose.changed
+
+    - name: Add user to docker group
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    - name: Enable and start Docker service
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Verify Docker installation
+      command: docker --version
+      register: docker_version
+      changed_when: false
+
+    - name: Verify Docker Compose installation
+      command: docker compose version
+      register: compose_version
+      changed_when: false
+
+    - name: Show Docker version
+      debug:
+        msg: "{{ docker_version.stdout }}"
+
+    - name: Show Docker Compose version
+      debug:
+        msg: "{{ compose_version.stdout }}"
