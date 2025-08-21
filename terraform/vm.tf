@@ -97,6 +97,18 @@ all:
       ansible_python_interpreter: /usr/bin/python3
 EOF
 
+    # Создаем .env файл
+    cat > ${path.module}/../.env.backup << EOF
+REGISTRY_HOST=${yandex_container_registry.registry.id}
+VM_IP=${self.network_interface[0].nat_ip_address}
+HOST=${self.network_interface[0].nat_ip_address}
+VM_USER=ubuntu
+SSH_KEY=~/.ssh/yandex_cloud
+YC_TOKEN=${var.yc_token}
+YC_FOLDER_ID=${var.folder_id}
+YC_CLOUD_ID=${var.cloud_id}
+EOF
+
     # Запускаем Ansible с увеличенными таймаутами
     ANSIBLE_CONFIG=ansible.cfg ansible-playbook -i ${path.module}/../ansible/inventory.yml ${path.module}/../ansible/install-docker.yml -vvv
   EOT
