@@ -9,11 +9,6 @@ class UserRepository {
     return rows[0];
   }
 
-  async findByUsername(nickname) {
-    const [rows] = await db.query('SELECT * FROM users WHERE nickname=?', [nickname]);
-    return rows[0];
-  }
-
   async createUser(user) {
     console.log(`[${(new Date()).toISOString()}] - ASYNC UserRepository.createUser [IN] - ${ JSON.stringify(user) }`);
     const [result] = await db.query('INSERT INTO users (id, email, nickname, password, active) VALUES (?,?,?,?,?);', [null, user.email, user.nickname, user.password, new Date()]);

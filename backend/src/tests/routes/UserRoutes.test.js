@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals';
 import request from 'supertest';
 import express from 'express';
-import { mockUserController } from '../mocks/controllers.js';
+import { mockUserController } from '../mocks/UserController.js';
 
 // Mock the UserController
 jest.unstable_mockModule('../../controllers/UserController.js', () => ({

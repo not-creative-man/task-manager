@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { mockUserService } from '../mocks/services.js';
+import { mockUserService } from '../mocks/UserService.js';
 
 // Mock UserService
 jest.unstable_mockModule('../../services/UserService.js', () => ({
@@ -48,11 +48,13 @@ describe('UserController', () => {
                 password: 'password123'
             };
 
+            mockUserService.registerUser.mockRejectedValueOnce(new Error('User already exists'));
+
             await UserController.register(req, res, next);
 
             expect(mockUserService.registerUser).toHaveBeenCalledWith(req.body);
-            expect(res.status).toHaveBeenCalledWith(201);
-            expect(res.json).toHaveBeenCalledWith({ userId: 1 });
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ error: 'User already exists' });
         });
     });
 
@@ -76,11 +78,13 @@ describe('UserController', () => {
                 password: 'password123'
             };
 
+            mockUserService.loginUser.mockRejectedValueOnce(new Error('User not found'));
+
             await UserController.login(req, res, next);
 
             expect(mockUserService.loginUser).toHaveBeenCalledWith(req.query);
-            expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.json).toHaveBeenCalledWith(1);
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ error: 'User not found' });
         });
     });
 

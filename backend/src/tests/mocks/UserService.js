@@ -2,16 +2,10 @@ import { jest } from '@jest/globals';
 
 export const mockUserService = {
     registerUser: jest.fn().mockImplementation(async (email, password) => {
-        if (email === 'existing@example.com') {
-            throw new Error('User already exists');
-        }
         return { userId: 1 };
     }),
 
     loginUser: jest.fn().mockImplementation(async (email, password) => {
-        if (email === 'nonexistent@example.com') {
-            throw new Error('Invalid credentials');
-        }
         return 1;
     }),
 

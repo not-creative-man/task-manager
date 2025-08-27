@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals';
 import request from 'supertest';
 import express from 'express';
-import { mockTodoController } from '../mocks/controllers.js';
+import { mockTodoController } from '../mocks/TodoController.js';
 
 // Mock the TodoController
 jest.unstable_mockModule('../../controllers/TodoController.js', () => ({

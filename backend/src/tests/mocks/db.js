@@ -8,7 +8,3 @@ const mockConnection = {
 export const mockDb = {
     query: mockQuery
 };
-
-jest.unstable_mockModule('../../db/connection.js', () => ({
-    default: mockDb
-})); 

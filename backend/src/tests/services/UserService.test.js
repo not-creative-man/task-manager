@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { mockUserRepository } from '../mocks/repositories.js';
+import { mockUserRepository } from '../mocks/UserRepository.js';
 
 // Mock the UserRepository
 jest.unstable_mockModule('../../repositories/UserRepository.js', () => ({
