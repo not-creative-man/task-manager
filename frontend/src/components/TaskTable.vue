@@ -3,7 +3,6 @@ import type TasksInterface from '@/interfaces/TasksInterface.ts'
 import editIcon from "@/assets/edit.png"
 import deleteIcon from "@/assets/delete.png"
 import TaskButton from '@/components/TaskButton.vue'
-import ActionButton from '@/components/ActionButton.vue'
 import TodoServices from '@/services/TodoServices.ts'
 import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
@@ -57,7 +56,7 @@ async function deleteTask(id: number | undefined): Promise<void> {
       <div class="body">Task body</div>
       <div class="deadline">Deadline</div>
       <div class="buttons">
-        <TaskButton msg="Add new task" path="/task" method="create"/>
+        <TaskButton msg="Add new task"/>
       </div>
     </div>
     <div v-if="tasks && tasks.length > 0" v-for="task in tasks" class="task-row" :key="task.task_id">

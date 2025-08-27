@@ -3,8 +3,6 @@ import { RouterLink } from 'vue-router'
 
 defineProps<{
   msg: string,
-  path: string,
-  method: string,
 }>()
 </script>
 
