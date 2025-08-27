@@ -14,24 +14,24 @@ fi
 echo "Registry Host is $REGISTRY_HOST"
 
 echo "Build backend image..."
-docker build --platform linux/amd64 -t backend:latest ./backend --load
+docker buildx build --no-cache --platform linux/amd64 -t task-manager-backend:latest ./backend --load
 
 echo "Tag backend image..."
-docker tag backend $REGISTRY_HOST/backend:latest
+docker tag task-manager-backend:latest $REGISTRY_HOST/task-manager-backend:latest
 
 echo "Push backend image..."
-docker push $REGISTRY_HOST/backend:latest
+docker push $REGISTRY_HOST/task-manager-backend:latest
 
 
 echo "Build frontend image..."
-docker build --platform linux/amd64 -t frontend:latest ./frontend --load
+docker buildx build --no-cache --platform linux/amd64 -t task-manager-frontend:latest ./frontend --load
 
 echo "Tag frontend image..."
-docker tag frontend $REGISTRY_HOST/frontend:latest
+docker tag task-manager-frontend:latest $REGISTRY_HOST/task-manager-frontend:latest
 
 echo "Push frontend image..."
-docker push $REGISTRY_HOST/frontend:latest
+docker push $REGISTRY_HOST/task-manager-frontend:latest
 
-cd ansible
-
-ansible-playbook -i inventory.yml deploy.yml
+#cd ansible
+#
+#ansible-playbook -i inventory.yml deploy.yml

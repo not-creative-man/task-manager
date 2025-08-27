@@ -4,7 +4,7 @@ import crypto from 'crypto';
 class TodoRepository{
   async findAllTasksByUser(userId){
     console.log(`[${(new Date()).toISOString()}] - ASYNC TodoRepository.findAllTasksByUser [IN] - ${ userId }`);
-    const [rows] = await db.query('SELECT * FROM tasks WHERE user_id=?', userId);
+    const [rows] = await db.query('SELECT * FROM tasks WHERE user_id=?', [userId]);
     console.log(`[${(new Date()).toISOString()}] - ASYNC TodoRepository.findAllTasksByUser [OUT] - ${ JSON.stringify(rows) }`);
     return rows;
   }
@@ -18,7 +18,7 @@ class TodoRepository{
 
   async getTaskData(taskId){
     console.log(`[${(new Date()).toISOString()}] - ASYNC TodoRepository.getTaskData [IN] - ${  JSON.stringify(taskId) }`);
-    const [rows] = await db.query('SELECT * FROM tasks WHERE task_id = ?', taskId);
+    const [rows] = await db.query('SELECT * FROM tasks WHERE task_id = ?', [taskId]);
     console.log(`[${(new Date()).toISOString()}] - ASYNC TodoRepository.getTaskData [OUT] - ${ JSON.stringify(rows) }`);
     return rows;
   }
@@ -39,7 +39,7 @@ class TodoRepository{
 
   async deleteTask(task){
     console.log(`[${(new Date()).toISOString()}] - ASYNC TodoRepository.deleteTask [IN] - ${  JSON.stringify(task) }`);
-    const [rows] = await db.query('DELETE FROM tasks WHERE task_id = ?', task.task_id);
+    const [rows] = await db.query('DELETE FROM tasks WHERE task_id = ?', [task.task_id]);
     console.log(`[${(new Date()).toISOString()}] - ASYNC TodoRepository.deleteTask [OUT] - ${ JSON.stringify(rows) }`);
     return rows;
   }

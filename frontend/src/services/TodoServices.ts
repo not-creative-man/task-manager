@@ -4,7 +4,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 class TodoServices{
   async getTasks(userId: string|string[]) {
-    const response = await fetch(API_URL + "/api/todo/getUserTasks?userId=" + userId, {
+    const response = await fetch("/api/todo/getUserTasks?userId=" + userId, {
       method: "GET",
       headers: {
         'Content-Type': 'application/json' // Этот заголовок важен
@@ -18,7 +18,7 @@ class TodoServices{
       id: taskId,
       is_task_done: value,
     }
-    const response = await fetch(API_URL + "/api/todo/changeTaskDone", {
+    const response = await fetch("/api/todo/changeTaskDone", {
       method: "POST",
       headers: {
         'Content-Type': 'application/json' // Этот заголовок важен
@@ -29,7 +29,7 @@ class TodoServices{
   }
 
   async getTaskData(taskId: number){
-    const response = await fetch(API_URL + "/api/todo/getTaskData?taskId=" + taskId.toString(), {
+    const response = await fetch("/api/todo/getTaskData?taskId=" + taskId.toString(), {
       method: "GET",
       headers: {
         'Content-Type': 'application/json' // Этот заголовок важен
@@ -39,7 +39,7 @@ class TodoServices{
   }
 
   async createTask(taskData: TasksInterface){
-    const response = await fetch(API_URL + "/api/todo/createTask", {
+    const response = await fetch("/api/todo/createTask", {
       method: "PUT",
       headers: {
         'Content-Type': 'application/json' // Этот заголовок важен
@@ -50,7 +50,7 @@ class TodoServices{
   }
 
   async deleteTask(taskId: number){
-    const response = await fetch(API_URL + "/api/todo/deleteTask", {
+    const response = await fetch("/api/todo/deleteTask", {
       method: "POST",
       headers: {
         'Content-Type': 'application/json' // Этот заголовок важен
@@ -61,7 +61,7 @@ class TodoServices{
   }
 
   async updateTask(taskData: TasksInterface){
-    const response = await fetch(API_URL + "/api/todo/updateTask", {
+    const response = await fetch("/api/todo/updateTask", {
       method: "POST",
       headers: {
         'Content-Type': 'application/json' // Этот заголовок важен
