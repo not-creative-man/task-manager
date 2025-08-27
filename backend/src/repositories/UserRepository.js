@@ -4,7 +4,7 @@ import crypto from 'crypto';
 class UserRepository {
   async findByEmail(email) {
     console.log(`[${(new Date()).toISOString()}] - ASYNC UserRepository.findByEmail [IN] - ${ email }`);
-    const [rows] = await db.query('SELECT * FROM users WHERE email=?', [email]);
+    const [rows] = await db.query('SELECT * FROM users WHERE email=?', email);
     console.log(`[${(new Date()).toISOString()}] - ASYNC UserRepository.findByEmail [OUT] - ${ JSON.stringify(rows) }`);
     return rows[0];
   }
