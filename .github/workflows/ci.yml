@@ -175,10 +175,11 @@ jobs:
           name: frontend-coverage-artifact
           path: frontend/coverage
 
-      - name: SonarCloud Scan (with Quality Gate)
+      - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         with:
           args: >-
             -Dsonar.qualitygate.wait=true
