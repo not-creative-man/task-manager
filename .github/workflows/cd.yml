@@ -38,5 +38,35 @@ jobs:
         env:
           KUBECONFIG: ${{ github.workspace }}/kubeconfig
         run: |
-          kubectl -n task-manager rollout status deploy/backend --timeout=120s || true
-          kubectl -n task-manager rollout status deploy/frontend --timeout=120s || true
+          kubectl -n task-manager rollout status deploy/backend --timeout=120s || exit 1
+          kubectl -n task-manager rollout status deploy/frontend --timeout=120s || exit 1
+
+      - name: Notify Telegram (success)
+        if: ${{ success() }}
+        uses: appleboy/telegram-action@v0.1.7
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            Deployment successful
+            Repo: ${{ github.repository }}
+            Commit: ${{ github.sha }}
+            Actor: ${{ github.actor }}
+            Environment: Kubernetes (task-manager)
+
+  notify-failure:
+    name: Notify Failure
+    if: ${{ github.event.workflow_run.conclusion != 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Telegram (failure)
+        uses: appleboy/telegram-action@v0.1.7
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            Deployment failed
+            Repo: ${{ github.repository }}
+            CI Conclusion: ${{ github.event.workflow_run.conclusion }}
+            Actor: ${{ github.actor }}
+            Check CI logs for details.
