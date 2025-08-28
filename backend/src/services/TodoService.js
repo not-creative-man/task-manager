@@ -63,5 +63,3 @@ class TodoService {
 }
 
 export default new TodoService();
-
-//module.exports = new UserService();

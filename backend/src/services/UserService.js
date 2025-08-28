@@ -13,9 +13,7 @@ class UserService {
     }
 
     const userId = await UserRepository.createUser(userData);
-    // const token = await UserRepository.findToken(userId);
     return {
-      // token
       userId
     };
   }
@@ -36,5 +34,3 @@ class UserService {
 }
 
 export default new UserService();
-
-//module.exports = new UserService();

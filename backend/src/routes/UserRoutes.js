@@ -8,5 +8,3 @@ router.get("/getAllUsers", UserController.getAllUsers);
 
 
 export default router;
-
-//module.exports = router;

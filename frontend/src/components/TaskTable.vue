@@ -74,8 +74,6 @@ async function deleteTask(id: number | undefined): Promise<void> {
           <img :src="editIcon" alt="Edit task" />
         </RouterLink>
         <img :src="deleteIcon" alt="Delete task" @click="deleteTask(task.task_id)" />
-<!--        <ActionButton msg="Edit task" :path="editIcon" alt="Edit task" action="editTask" :route="task.task_id?" />-->
-<!--        <ActionButton msg="Delete task" :path="deleteIcon" alt="Delete task" action="deleteTask" :route="task.task_id" />-->
       </div>
     </div>
   </div>
@@ -119,10 +117,6 @@ async function deleteTask(id: number | undefined): Promise<void> {
   height: 50px;
   width: 100%;
   outline: black solid 1px;
-}
-
-.done {
-
 }
 
 .buttons {

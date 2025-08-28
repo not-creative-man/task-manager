@@ -1,5 +1,4 @@
 import db from '../db/connection.js';
-import crypto from 'crypto';
 
 class UserRepository {
   async findByEmail(email) {

@@ -5,5 +5,3 @@ const router = express.Router();
 router.get("/", HealthController.check);
 
 export default router;
-
-//module.exports = router;
