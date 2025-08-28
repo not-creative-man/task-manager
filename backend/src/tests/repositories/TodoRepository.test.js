@@ -3,7 +3,7 @@ import { mockDb } from '../mocks/db.js';
 
 // Mock DB connection
 jest.unstable_mockModule('../../db/connection.js', () => ({
-  default: mockDb,
+  default: mockDb
 }));
 
 // Import repository after mocking

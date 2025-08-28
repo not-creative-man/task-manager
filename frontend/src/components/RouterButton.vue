@@ -8,11 +8,13 @@ defineProps<{
 </script>
 
 <template>
-  <RouterLink :to='path' style="display: flex; justify-content: center;"><div class="beautiful">{{msg}}</div></RouterLink>
+  <RouterLink :to='path' style="display: flex; justify-content: center;">
+    <div class="beautiful">{{ msg }}</div>
+  </RouterLink>
 </template>
 
 <style scoped>
-.beautiful{
+.beautiful {
   width: 100%;
   height: 60px;
   color: #ffffff;

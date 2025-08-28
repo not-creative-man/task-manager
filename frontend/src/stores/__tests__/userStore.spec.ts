@@ -4,7 +4,8 @@ import { setActivePinia, createPinia } from 'pinia'
 
 vi.mock('@/router/index', () => ({
   default: {
-    push: vi.fn(async () => {})
+    push: vi.fn(async () => {
+    })
   }
 }))
 

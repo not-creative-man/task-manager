@@ -1,61 +1,61 @@
-import TodoRepository from '../repositories/TodoRepository.js'
+import TodoRepository from '../repositories/TodoRepository.js';
 
 class TodoService {
-  async findAllTasksByUser(userId){
-    console.log(userId)
-    try{
+  async findAllTasksByUser(userId) {
+    console.log(userId);
+    try {
       return await TodoRepository.findAllTasksByUser(userId);
-    } catch(error){
+    } catch (error) {
       console.error(error);
       throw error;
     }
   }
 
-  async changeTaskDone(task){
+  async changeTaskDone(task) {
     console.log(JSON.stringify(task));
-    try{
+    try {
       return await TodoRepository.changeTaskDone(task);
-    } catch(error){
+    } catch (error) {
       console.error(error);
       throw error;
     }
   }
 
-  async getTaskData(taskId){
+  async getTaskData(taskId) {
     console.log(JSON.stringify(taskId));
-    try{
+    try {
       return await TodoRepository.getTaskData(taskId);
-    } catch(error){
+    } catch (error) {
       console.error(error);
       throw error;
     }
   }
 
-  async createTask(task){
+  async createTask(task) {
     console.log(JSON.stringify(task));
-    try{
+    try {
       return await TodoRepository.createTask(task);
-    } catch(error){
+    } catch (error) {
       console.error(error);
       throw error;
     }
   }
 
-  async updateTask(task){
+  async updateTask(task) {
     console.log(JSON.stringify(task));
-    try{
+    try {
       return await TodoRepository.updateTask(task);
-    } catch(error){
+    } catch (error) {
       console.error(error);
       throw error;
     }
   }
 
-  async deleteTask(taskId){
+  async deleteTask(taskId) {
     console.log(JSON.stringify(taskId));
-    try{
+    try {
       return await TodoRepository.deleteTask(taskId);
-    } catch(error){
+    } catch (error) {
       console.error(error);
       throw error;
     }

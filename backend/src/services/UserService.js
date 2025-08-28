@@ -1,8 +1,8 @@
 import UserRepository from '../repositories/UserRepository.js';
 
 class UserService {
-  async registerUser(userData){
-    try{
+  async registerUser(userData) {
+    try {
       const existingUser = await UserRepository.findByEmail(userData.email);
       if (existingUser) {
         throw new Error('User already exists');
@@ -18,7 +18,7 @@ class UserService {
     };
   }
 
-  async loginUser(userData){
+  async loginUser(userData) {
     const existingUser = await UserRepository.loginUser(userData);
     if (!existingUser) {
       throw new Error('User not found');
@@ -27,7 +27,7 @@ class UserService {
     return existingUser.id;
   }
 
-  async getAllUsers(){
+  async getAllUsers() {
     const users = await UserRepository.getAllUsers();
     return users;
   }

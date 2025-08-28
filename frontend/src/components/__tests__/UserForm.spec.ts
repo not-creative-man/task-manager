@@ -7,7 +7,7 @@ describe('UserForm', () => {
     const onSubmit = vi.fn()
     const dataList = [
       { type: 'text', label: 'Email', value: 'email' },
-      { type: 'password', label: 'Password', value: 'password' },
+      { type: 'password', label: 'Password', value: 'password' }
     ]
 
     const wrapper = mount(UserForm, {
@@ -16,8 +16,8 @@ describe('UserForm', () => {
         text: 'Please login',
         dataList,
         buttonText: 'Submit',
-        handleSubmit: onSubmit,
-      },
+        handleSubmit: onSubmit
+      }
     })
 
     expect(wrapper.text()).toContain('Login')

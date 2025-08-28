@@ -14,7 +14,7 @@ describe('todoStore', () => {
       user_id: 2,
       task_body: 'body',
       is_task_done: true,
-      task_deadline: '2025-01-01',
+      task_deadline: '2025-01-01'
     }
     store.setTaskData(task as any)
     expect(store.taskId).toBe(1)
@@ -37,7 +37,7 @@ describe('todoStore', () => {
       user_id: 4,
       task_body: 'x',
       is_task_done: false,
-      task_deadline: null,
+      task_deadline: null
     })
   })
 })

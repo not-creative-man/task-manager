@@ -1,23 +1,23 @@
 <script setup lang="ts">
 import type TasksInterface from '@/interfaces/TasksInterface.ts'
-import editIcon from "@/assets/edit.png"
-import deleteIcon from "@/assets/delete.png"
+import editIcon from '@/assets/edit.png'
+import deleteIcon from '@/assets/delete.png'
 import TaskButton from '@/components/TaskButton.vue'
 import TodoServices from '@/services/TodoServices.ts'
 import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 
-const tasksProps = defineProps(['userId']);
-const tasks = ref<TasksInterface[] | undefined>(undefined);
+const tasksProps = defineProps(['userId'])
+const tasks = ref<TasksInterface[] | undefined>(undefined)
 
-onMounted(onAfterMount);
+onMounted(onAfterMount)
 
-async function onAfterMount(){
-  const response = await TodoServices.getTasks(tasksProps.userId);
-  if (response.error){
-    alert(response.error);
+async function onAfterMount() {
+  const response = await TodoServices.getTasks(tasksProps.userId)
+  if (response.error) {
+    alert(response.error)
   } else {
-    tasks.value = response;
+    tasks.value = response
   }
 }
 
@@ -25,26 +25,26 @@ async function changeTaskDone(id: number | undefined): Promise<void> {
   const task = tasks.value?.find((e) => {
     return e.task_id === id
   })
-  if (!task) return;
+  if (!task) return
 
-  const status = !task.is_task_done;
-  const response = await TodoServices.changeTaskDone(id, status);
-  if (response.error){
-    alert(response.error);
+  const status = !task.is_task_done
+  const response = await TodoServices.changeTaskDone(id, status)
+  if (response.error) {
+    alert(response.error)
   }
-  task.is_task_done = status;
-  await onAfterMount();
+  task.is_task_done = status
+  await onAfterMount()
 }
 
 async function deleteTask(id: number | undefined): Promise<void> {
   if (id === undefined) {
-    return;
+    return
   }
-  const response = await TodoServices.deleteTask(id);
-  if (response.error){
-    alert(response.error);
+  const response = await TodoServices.deleteTask(id)
+  if (response.error) {
+    alert(response.error)
   }
-  await onAfterMount();
+  await onAfterMount()
 }
 </script>
 
@@ -56,16 +56,17 @@ async function deleteTask(id: number | undefined): Promise<void> {
       <div class="body">Task body</div>
       <div class="deadline">Deadline</div>
       <div class="buttons">
-        <TaskButton msg="Add new task"/>
+        <TaskButton msg="Add new task" />
       </div>
     </div>
     <div v-if="tasks && tasks.length > 0" v-for="task in tasks" class="task-row" :key="task.task_id">
       <div class="done">
-        <input type="checkbox" name="done" :id="'task-' + task.task_id?.toString()" :checked=task.is_task_done @click="changeTaskDone(task.task_id)"/>
+        <input type="checkbox" name="done" :id="'task-' + task.task_id?.toString()" :checked=task.is_task_done
+               @click="changeTaskDone(task.task_id)" />
       </div>
-      <div class="id">{{task.task_id}}</div>
-      <div class="body">{{task.task_body}}</div>
-      <div class="deadline">{{ task.task_deadline ? new Date(task.task_deadline).toLocaleDateString() : "" }}</div>
+      <div class="id">{{ task.task_id }}</div>
+      <div class="body">{{ task.task_body }}</div>
+      <div class="deadline">{{ task.task_deadline ? new Date(task.task_deadline).toLocaleDateString() : '' }}</div>
       <div class="buttons">
         <RouterLink :to='{name: "Task Page", params:{
           action: "update",
@@ -80,7 +81,7 @@ async function deleteTask(id: number | undefined): Promise<void> {
 </template>
 
 <style scoped>
-.table-container{
+.table-container {
   display: grid;
   justify-items: center;
 }

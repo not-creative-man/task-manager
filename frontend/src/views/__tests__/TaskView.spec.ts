@@ -12,11 +12,12 @@ vi.mock('vue-router', async () => {
     ...actual,
     useRoute: () => ({ params: routeParams }),
     useRouter: () => ({ push: pushMock }),
-    RouterLink: { name: 'RouterLink', template: '<a><slot /></a>' },
+    RouterLink: { name: 'RouterLink', template: '<a><slot /></a>' }
   }
 })
 
-const logOutMock = vi.fn(async () => {})
+const logOutMock = vi.fn(async () => {
+})
 let userId: number | undefined = 1
 vi.mock('@/stores/userStore.ts', () => ({
   useUserData: () => ({ userId, logOut: logOutMock })
@@ -26,18 +27,19 @@ vi.mock('@/stores/userStore.ts', () => ({
 const serviceMocks = vi.hoisted(() => ({
   getTaskData: vi.fn(),
   createTask: vi.fn(),
-  updateTask: vi.fn(),
+  updateTask: vi.fn()
 }))
 
 vi.mock('@/services/TodoServices.ts', () => ({
   default: {
     getTaskData: (...args: any[]) => serviceMocks.getTaskData(...args),
     createTask: (...args: any[]) => serviceMocks.createTask(...args),
-    updateTask: (...args: any[]) => serviceMocks.updateTask(...args),
+    updateTask: (...args: any[]) => serviceMocks.updateTask(...args)
   }
 }))
 
-const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {})
+const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {
+})
 
 describe('TaskView.vue', () => {
   beforeEach(() => {
@@ -49,7 +51,7 @@ describe('TaskView.vue', () => {
 
   it('create flow: submits and navigates back', async () => {
     const wrapper = mount(TaskView, {
-      props: { action: 'create' },
+      props: { action: 'create' }
     })
     await flushPromises()
 

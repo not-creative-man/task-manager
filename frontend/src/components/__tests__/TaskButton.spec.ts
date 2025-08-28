@@ -12,7 +12,7 @@ describe('TaskButton', () => {
   it('renders RouterLink to Task Page with create params and shows text', () => {
     const wrapper = mount(TaskButton, {
       props: { msg: 'Add new task' },
-      global: { stubs: { RouterLink: RouterLinkStub } },
+      global: { stubs: { RouterLink: RouterLinkStub } }
     })
     const link = wrapper.findComponent({ name: 'RouterLink' })
     expect(link.exists()).toBe(true)

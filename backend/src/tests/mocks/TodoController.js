@@ -19,4 +19,4 @@ export const mockTodoController = {
   deleteTask: jest.fn().mockImplementation((req, res) => {
     res.status(200).json([]);
   })
-}
+};

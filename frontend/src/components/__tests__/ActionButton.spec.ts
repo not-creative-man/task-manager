@@ -32,12 +32,12 @@ describe('ActionButton', () => {
 
     // Проверяем, что компонент отрендерился
     expect(wrapper.exists()).toBe(true)
-    
+
     // Проверяем, что RouterLink содержит правильный путь
     const routerLink = wrapper.findComponent({ name: 'RouterLink' })
     expect(routerLink.exists()).toBe(true)
     expect(routerLink.props('to')).toEqual({ name: 'test-path' })
-    
+
     // Проверяем, что img содержит правильные атрибуты
     const img = wrapper.find('img')
     expect(img.exists()).toBe(true)

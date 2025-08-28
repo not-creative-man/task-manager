@@ -1,7 +1,7 @@
-import express from "express";
-import cors from "cors";
-import client from "prom-client";
-import userRoutes from "./routes/UserRoutes.js";
+import express from 'express';
+import cors from 'cors';
+import client from 'prom-client';
+import userRoutes from './routes/UserRoutes.js';
 import todoRoutes from './routes/TodoRoutes.js';
 import healthRoutes from './routes/HealthRoutes.js';
 
@@ -40,4 +40,4 @@ app.use('/api/user', userRoutes);
 app.use('/api/todo', todoRoutes);
 app.use('/api/health', healthRoutes);
 
-app.listen(3000, () => console.log(`Server started on port 3000`));
+app.listen(3000, () => console.log('Server started on port 3000'));

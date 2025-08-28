@@ -19,7 +19,7 @@ describe('TodoServices', () => {
     const res = await TodoServices.getTasks('42')
     expect(mockFetch).toHaveBeenCalledWith('/api/todo/getUserTasks?userId=42', {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' }
     })
     expect(res).toEqual([{ id: 1 }])
   })
@@ -30,7 +30,7 @@ describe('TodoServices', () => {
     expect(mockFetch).toHaveBeenCalledWith('/api/todo/changeTaskDone', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: 5, is_task_done: true }),
+      body: JSON.stringify({ id: 5, is_task_done: true })
     })
     expect(res).toEqual({ ok: true })
   })
@@ -40,7 +40,7 @@ describe('TodoServices', () => {
     const res = await TodoServices.getTaskData(7)
     expect(mockFetch).toHaveBeenCalledWith('/api/todo/getTaskData?taskId=7', {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' }
     })
     expect(res).toEqual({ id: 7 })
   })
@@ -52,7 +52,7 @@ describe('TodoServices', () => {
     expect(mockFetch).toHaveBeenCalledWith('/api/todo/createTask', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     })
     expect(res).toEqual({ created: 1 })
   })
@@ -63,7 +63,7 @@ describe('TodoServices', () => {
     expect(mockFetch).toHaveBeenCalledWith('/api/todo/deleteTask', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ task_id: 10 }),
+      body: JSON.stringify({ task_id: 10 })
     })
     expect(res).toEqual({ deleted: 1 })
   })
@@ -75,7 +75,7 @@ describe('TodoServices', () => {
     expect(mockFetch).toHaveBeenCalledWith('/api/todo/updateTask', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     })
     expect(res).toEqual({ updated: 1 })
   })

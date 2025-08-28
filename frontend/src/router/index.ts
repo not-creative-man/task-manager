@@ -11,30 +11,30 @@ const router = createRouter({
     {
       path: '/',
       name: 'Home',
-      component: WelcomeView,
+      component: WelcomeView
     },
     {
       path: '/login',
       name: 'Login Page',
-      component: LoginView,
+      component: LoginView
     },
     {
       path: '/register',
       name: 'Register Page',
-      component: RegisterView,
+      component: RegisterView
     },
     {
       path: '/user',
       name: 'User Page',
-      component: UserTasksView,
+      component: UserTasksView
     },
     {
       path: '/task/:action/:task_id?',
       name: 'Task Page',
       component: TaskView,
-      props: true,
-    },
-  ],
+      props: true
+    }
+  ]
 })
 
 export default router

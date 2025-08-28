@@ -10,11 +10,13 @@ defineProps<{
   <RouterLink :to='{name: "Task Page", params: {
     action: "create",
     task_id: undefined
-  }}' style="display: flex; justify-content: center;"><div class="beautiful">{{msg}}</div></RouterLink>
+  }}' style="display: flex; justify-content: center;">
+    <div class="beautiful">{{ msg }}</div>
+  </RouterLink>
 </template>
 
 <style scoped>
-.beautiful{
+.beautiful {
   width: 110px;
   height: 40px;
   color: #ffffff;

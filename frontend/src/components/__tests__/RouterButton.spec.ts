@@ -10,14 +10,14 @@ const RouterLinkStub = {
 
 const wrapper = mount(RouterButton, {
   props: { msg: 'Go', path: '/login' },
-  global: { stubs: { RouterLink: RouterLinkStub } },
+  global: { stubs: { RouterLink: RouterLinkStub } }
 })
 
 describe('RouterButton', () => {
   it('renders RouterLink with correct path and text', () => {
     const wrapper = mount(RouterButton, {
       props: { msg: 'Go', path: '/login' },
-      global: { stubs: { RouterLink: RouterLinkStub } },
+      global: { stubs: { RouterLink: RouterLinkStub } }
     })
     const link = wrapper.findComponent({ name: 'RouterLink' })
     expect(link.exists()).toBe(true)

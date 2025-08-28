@@ -3,7 +3,7 @@ import { mockTodoService } from '../mocks/TodoService.js';
 
 // Mock TodoService
 jest.unstable_mockModule('../../services/TodoService.js', () => ({
-  default: mockTodoService,
+  default: mockTodoService
 }));
 
 // Import TodoController after mocking
@@ -18,7 +18,7 @@ describe('TodoController', () => {
     req = { body: {}, query: {}, params: {} };
     res = {
       json: jest.fn(),
-      status: jest.fn().mockReturnThis(),
+      status: jest.fn().mockReturnThis()
     };
     next = jest.fn();
     jest.clearAllMocks();

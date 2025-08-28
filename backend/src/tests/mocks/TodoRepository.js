@@ -6,5 +6,5 @@ export const mockTodoRepository = {
   getTaskData: jest.fn(),
   createTask: jest.fn(),
   updateTask: jest.fn(),
-  deleteTask: jest.fn(),
+  deleteTask: jest.fn()
 };

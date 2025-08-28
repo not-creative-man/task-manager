@@ -27,7 +27,7 @@ describe('UserServices', () => {
     expect(mockFetch).toHaveBeenCalledWith('/api/user/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nickname: 'nick', password: 'pass', email: 'e@e' }),
+      body: JSON.stringify({ nickname: 'nick', password: 'pass', email: 'e@e' })
     })
     expect(res).toEqual({ id: 1 })
   })

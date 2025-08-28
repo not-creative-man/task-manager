@@ -10,7 +10,7 @@ vi.mock('@/assets/delete.png', () => ({ default: 'delete.png' }), { virtual: tru
 const serviceMocks = vi.hoisted(() => ({
   getTasks: vi.fn(),
   changeTaskDone: vi.fn(),
-  deleteTask: vi.fn(),
+  deleteTask: vi.fn()
 }))
 
 // Mock TodoServices module using the hoisted mocks
@@ -18,7 +18,7 @@ vi.mock('@/services/TodoServices.ts', () => ({
   default: {
     getTasks: (...args: any[]) => serviceMocks.getTasks(...args),
     changeTaskDone: (...args: any[]) => serviceMocks.changeTaskDone(...args),
-    deleteTask: (...args: any[]) => serviceMocks.deleteTask(...args),
+    deleteTask: (...args: any[]) => serviceMocks.deleteTask(...args)
   }
 }))
 
@@ -42,21 +42,22 @@ let alertSpy: MockInstance<[message?: any], void>
 describe('TaskTable.vue', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {})
+    alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {
+    })
   })
 
   it('loads tasks on mount and renders rows', async () => {
     serviceMocks.getTasks.mockResolvedValueOnce([
       { task_id: 1, user_id: 2, task_body: 'A', is_task_done: false, task_deadline: null },
-      { task_id: 2, user_id: 2, task_body: 'B', is_task_done: true, task_deadline: '2025-01-01' },
+      { task_id: 2, user_id: 2, task_body: 'B', is_task_done: true, task_deadline: '2025-01-01' }
     ])
 
     const wrapper = mount(TaskTable, {
       props: { userId: '2' },
       global: {
         stubs: { RouterLink: RouterLinkStub },
-        components: { TaskButton: TaskButtonStub },
-      },
+        components: { TaskButton: TaskButtonStub }
+      }
     })
 
     await flushPromises()
@@ -71,17 +72,17 @@ describe('TaskTable.vue', () => {
   it('changeTaskDone toggles and refreshes list', async () => {
     // initial load
     serviceMocks.getTasks.mockResolvedValueOnce([
-      { task_id: 3, user_id: 2, task_body: 'C', is_task_done: false, task_deadline: null },
+      { task_id: 3, user_id: 2, task_body: 'C', is_task_done: false, task_deadline: null }
     ])
     serviceMocks.changeTaskDone.mockResolvedValueOnce({ ok: true })
     // refresh load
     serviceMocks.getTasks.mockResolvedValueOnce([
-      { task_id: 3, user_id: 2, task_body: 'C', is_task_done: true, task_deadline: null },
+      { task_id: 3, user_id: 2, task_body: 'C', is_task_done: true, task_deadline: null }
     ])
 
     const wrapper = mount(TaskTable, {
       props: { userId: '2' },
-      global: { stubs: { RouterLink: RouterLinkStub }, components: { TaskButton: TaskButtonStub } },
+      global: { stubs: { RouterLink: RouterLinkStub }, components: { TaskButton: TaskButtonStub } }
     })
     await flushPromises()
 
@@ -96,7 +97,7 @@ describe('TaskTable.vue', () => {
   it('deleteTask calls service and refreshes list', async () => {
     // initial
     serviceMocks.getTasks.mockResolvedValueOnce([
-      { task_id: 4, user_id: 2, task_body: 'D', is_task_done: false, task_deadline: null },
+      { task_id: 4, user_id: 2, task_body: 'D', is_task_done: false, task_deadline: null }
     ])
     serviceMocks.deleteTask.mockResolvedValueOnce({ ok: true })
     // refresh
@@ -104,7 +105,7 @@ describe('TaskTable.vue', () => {
 
     const wrapper = mount(TaskTable, {
       props: { userId: '2' },
-      global: { stubs: { RouterLink: RouterLinkStub }, components: { TaskButton: TaskButtonStub } },
+      global: { stubs: { RouterLink: RouterLinkStub }, components: { TaskButton: TaskButtonStub } }
     })
     await flushPromises()
 
@@ -119,7 +120,7 @@ describe('TaskTable.vue', () => {
   it('deleteTask calls service without id', async () => {
     // initial
     serviceMocks.getTasks.mockResolvedValueOnce([
-      { user_id: 2, task_body: 'D', is_task_done: false, task_deadline: null },
+      { user_id: 2, task_body: 'D', is_task_done: false, task_deadline: null }
     ])
     serviceMocks.deleteTask.mockResolvedValueOnce({ ok: true })
     // refresh
@@ -127,7 +128,7 @@ describe('TaskTable.vue', () => {
 
     const wrapper = mount(TaskTable, {
       props: { userId: '2' },
-      global: { stubs: { RouterLink: RouterLinkStub }, components: { TaskButton: TaskButtonStub } },
+      global: { stubs: { RouterLink: RouterLinkStub }, components: { TaskButton: TaskButtonStub } }
     })
     await flushPromises()
 

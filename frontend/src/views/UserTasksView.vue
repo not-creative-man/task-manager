@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router';
+import { useRoute } from 'vue-router'
 import TaskTable from '@/components/TaskTable.vue'
 import { useUserData } from '@/stores/userStore.ts'
 import { onMounted } from 'vue'
 
-const route = useRoute();
-const userStore = useUserData();
+const route = useRoute()
+const userStore = useUserData()
 
 onMounted(() => userStore.logOut())
 </script>

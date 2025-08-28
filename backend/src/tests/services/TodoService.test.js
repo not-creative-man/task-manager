@@ -3,7 +3,7 @@ import { mockTodoRepository } from '../mocks/TodoRepository.js';
 
 // Mock the TodoRepository
 jest.unstable_mockModule('../../repositories/TodoRepository.js', () => ({
-  default: mockTodoRepository,
+  default: mockTodoRepository
 }));
 
 // Import the service after mocking

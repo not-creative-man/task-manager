@@ -2,23 +2,23 @@ import db from '../db/connection.js';
 
 class UserRepository {
   async findByEmail(email) {
-    console.log(`[${(new Date()).toISOString()}] - ASYNC UserRepository.findByEmail [IN] - ${ email }`);
+    console.log(`[${(new Date()).toISOString()}] - ASYNC UserRepository.findByEmail [IN] - ${email}`);
     const [rows] = await db.query('SELECT * FROM users WHERE email=?', email);
-    console.log(`[${(new Date()).toISOString()}] - ASYNC UserRepository.findByEmail [OUT] - ${ JSON.stringify(rows) }`);
+    console.log(`[${(new Date()).toISOString()}] - ASYNC UserRepository.findByEmail [OUT] - ${JSON.stringify(rows)}`);
     return rows[0];
   }
 
   async createUser(user) {
-    console.log(`[${(new Date()).toISOString()}] - ASYNC UserRepository.createUser [IN] - ${ JSON.stringify(user) }`);
+    console.log(`[${(new Date()).toISOString()}] - ASYNC UserRepository.createUser [IN] - ${JSON.stringify(user)}`);
     const [result] = await db.query('INSERT INTO users (id, email, nickname, password, active) VALUES (?,?,?,?,?);', [null, user.email, user.nickname, user.password, new Date()]);
-    console.log(`[${(new Date()).toISOString()}] - ASYNC UserRepository.createUser [OUT] - ${ JSON.stringify(result) }`);
+    console.log(`[${(new Date()).toISOString()}] - ASYNC UserRepository.createUser [OUT] - ${JSON.stringify(result)}`);
     return result.insertId;
   }
 
   async loginUser(user) {
-    console.log(`[${(new Date()).toISOString()}] - ASYNC UserRepository.loginUser [IN] - ${ JSON.stringify(user) }`);
+    console.log(`[${(new Date()).toISOString()}] - ASYNC UserRepository.loginUser [IN] - ${JSON.stringify(user)}`);
     const [result] = await db.query('SELECT id FROM users WHERE email=? AND password=?;', [user.email, user.password]);
-    console.log(`[${(new Date()).toISOString()}] - ASYNC UserRepository.loginUser [OUT] - ${ JSON.stringify(result) }`);
+    console.log(`[${(new Date()).toISOString()}] - ASYNC UserRepository.loginUser [OUT] - ${JSON.stringify(result)}`);
     return result[0];
   }
 
@@ -32,7 +32,7 @@ class UserRepository {
   async getAllUsers() {
     console.log(`[${(new Date()).toISOString()}] - ASYNC UserRepository.getAllUsers [IN] -`);
     const [rows] = await db.query('SELECT * FROM users');
-    console.log(`[${(new Date()).toISOString()}] - ASYNC UserRepository.getAllUsers [OUT] - ${ JSON.stringify(rows) }`);
+    console.log(`[${(new Date()).toISOString()}] - ASYNC UserRepository.getAllUsers [OUT] - ${JSON.stringify(rows)}`);
     return rows;
   }
 }
