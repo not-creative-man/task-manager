@@ -33,6 +33,28 @@ jobs:
           chmod 600 $HOME/.kube/config
           kubectl config current-context || true
 
+      - name: Install Yandex Cloud CLI
+        run: |
+          curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash -s -- -a
+          echo "$HOME/yandex-cloud/bin" >> $GITHUB_PATH
+          echo "yc version:" && $HOME/yandex-cloud/bin/yc --version
+
+      - name: Configure YC auth
+        env:
+          YC_OAUTH_TOKEN: ${{ secrets.YC_OAUTH_TOKEN }}
+        run: |
+          # Configure yc to be able to exchange OAuth to IAM token
+          $HOME/yandex-cloud/bin/yc config set token "$YC_OAUTH_TOKEN"
+          # Optional: disable interactive prompts
+          $HOME/yandex-cloud/bin/yc config set core.retry-interval 0s || true
+
+      - name: Patch kubeconfig exec path to yc
+        run: |
+          # Replace any absolute path to yc in kubeconfig with plain 'yc' (uses PATH)
+          sed -i 's|/Users/islebedev/yandex-cloud/bin/yc|yc|g' $HOME/.kube/config
+          sed -i 's|/home/runner/.*/yc|yc|g' $HOME/.kube/config || true
+          echo "Patched kubeconfig:" && grep -n "command: yc" -n $HOME/.kube/config || true
+
       - name: Ensure namespace exists
         run: |
           kubectl get ns ${NAMESPACE} || kubectl create ns ${NAMESPACE}
