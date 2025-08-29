@@ -11,6 +11,8 @@ jobs:
     name: Deploy to Kubernetes
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+    env:
+      KUBECONFIG: ${{ github.workspace }}/kubeconfig
     steps:
       - name: Checkout source that triggered CI
         uses: actions/checkout@v4
@@ -24,10 +26,21 @@ jobs:
         with:
           version: 'latest'
 
-      - name: Set kubeconfig
+      - name: Set kubeconfig (auto-detect base64/plain)
+        shell: bash
         run: |
-          echo "$KUBE_CONFIG" > kubeconfig
-          echo "KUBECONFIG written"
+          if [[ -z "$KUBE_CONFIG" ]]; then
+            echo "ERROR: KUBE_CONFIG secret is empty" >&2
+            exit 1
+          fi
+          # Try base64 decode; if it fails, write as-is
+          if echo "$KUBE_CONFIG" | base64 -d >/dev/null 2>&1; then
+            echo "$KUBE_CONFIG" | base64 -d > "$KUBECONFIG"
+            echo "KUBECONFIG written (decoded from base64)"
+          else
+            printf '%s' "$KUBE_CONFIG" > "$KUBECONFIG"
+            echo "KUBECONFIG written (plain text)"
+          fi
         env:
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
 
@@ -44,27 +57,41 @@ jobs:
           echo "List k8s dir:" && ls -la k8s || true
           echo "List k8s files via git:" && git ls-tree --name-only -r HEAD | grep '^k8s/' || true
 
+      - name: Show kubectl config and cluster info
+        shell: bash
+        run: |
+          echo "--- kubeconfig (sanitized) ---"
+          # Mask tokens/certs before printing
+          sed -E 's/(token: ).*/\1*******/; s/(client-certificate-data: ).*/\1*******/; s/(client-key-data: ).*/\1*******/; s/(certificate-authority-data: ).*/\1*******/' "$KUBECONFIG" || true
+          echo "--- kubectl config view ---"
+          kubectl config view || true
+          echo "--- current context ---"
+          kubectl config current-context || true
+          echo "--- cluster-info ---"
+          kubectl cluster-info || true
+
       - name: Ensure k8s manifests present
         run: |
           if [ ! -d k8s ]; then
             echo "ERROR: k8s directory is missing in this commit." >&2
             exit 1
           fi
-          if [ ! -f k8s/namespace.yaml ]; then
-            echo "WARNING: k8s/namespace.yaml not found; listing k8s/ to help debug:" >&2
-            ls -la k8s
-          fi
 
       - name: Deploy to Kubernetes
-        env:
-          KUBECONFIG: ${{ github.workspace }}/kubeconfig
+        shell: bash
         run: |
-          # Apply the entire directory to avoid per-file path drift
+          # Primary attempt with validation
+          set -e
           kubectl apply -f k8s/
+        
+      - name: Fallback apply without OpenAPI validation (if needed)
+        if: ${{ failure() }}
+        shell: bash
+        run: |
+          echo "Retrying kubectl apply with --validate=false (API server validation unavailable)" >&2
+          kubectl apply -f k8s/ --validate=false
 
       - name: Verify rollout
-        env:
-          KUBECONFIG: ${{ github.workspace }}/kubeconfig
         run: |
           kubectl -n task-manager rollout status deploy/backend --timeout=120s || exit 1
           kubectl -n task-manager rollout status deploy/frontend --timeout=120s || exit 1
