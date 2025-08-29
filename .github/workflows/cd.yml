@@ -8,10 +8,16 @@ on:
 
 jobs:
   deploy:
+    name: Deploy to Kubernetes
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout source that triggered CI
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.workflow_run.repository.full_name }}
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
 
       - name: Set up kubectl
         uses: azure/setup-kubectl@v4
@@ -24,6 +30,12 @@ jobs:
           echo "KUBECONFIG written"
         env:
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Debug workspace contents
+        run: |
+          pwd
+          ls -la
+          ls -la k8s || true
 
       - name: Deploy to Kubernetes
         env:
