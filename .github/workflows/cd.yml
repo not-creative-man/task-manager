@@ -112,11 +112,6 @@ jobs:
           kubectl -n ${NAMESPACE} set image deployment/backend backend=${REGISTRY}/${REGISTRY_ID}/task-manager-backend:${IMAGE_TAG}
           kubectl -n ${NAMESPACE} set image deployment/frontend frontend=${REGISTRY}/${REGISTRY_ID}/task-manager-frontend:${IMAGE_TAG}
 
-      - name: Wait for rollout
-        run: |
-          kubectl -n ${NAMESPACE} rollout restart deployment/backend --timeout=180s
-          kubectl -n ${NAMESPACE} rollout restart deployment/frontend --timeout=180s
-
       - name: Notify Telegram (Final)
         if: always()
         env:
