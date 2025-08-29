@@ -10,7 +10,7 @@ jobs:
     name: Deploy to Kubernetes
     # Run only if CI succeeded and branch is main
     if: >
-      ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
+      ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.name == 'CI' }}
     runs-on: ubuntu-latest
     env:
       REGISTRY: cr.yandex
@@ -55,6 +55,33 @@ jobs:
           sed -i 's|/home/runner/.*/yc|yc|g' $HOME/.kube/config || true
           echo "Patched kubeconfig:" && grep -n "command: yc" -n $HOME/.kube/config || true
 
+      - name: Wait for images to appear in YCR
+        env:
+          YC_OAUTH_TOKEN: ${{ secrets.YC_OAUTH_TOKEN }}
+        run: |
+          echo "Logging in to YCR to check images..."
+          echo "$YC_OAUTH_TOKEN" | docker login ${REGISTRY} -u oauth --password-stdin
+
+          BACKEND_IMAGE="${REGISTRY}/${REGISTRY_ID}/task-manager-backend:${IMAGE_TAG}"
+          FRONTEND_IMAGE="${REGISTRY}/${REGISTRY_ID}/task-manager-frontend:${IMAGE_TAG}"
+
+          echo "Waiting for images:"
+          echo "  $BACKEND_IMAGE"
+          echo "  $FRONTEND_IMAGE"
+
+          for i in $(seq 1 60); do
+            docker manifest inspect "$BACKEND_IMAGE" >/dev/null 2>&1 && B_OK=1 || B_OK=0
+            docker manifest inspect "$FRONTEND_IMAGE" >/dev/null 2>&1 && F_OK=1 || F_OK=0
+            if [ "$B_OK" = "1" ] && [ "$F_OK" = "1" ]; then
+              echo "Both images are available in YCR."
+              exit 0
+            fi
+            echo "[$i/60] Images not ready yet. Retrying in 10s..."
+            sleep 10
+          done
+          echo "Images not found in YCR within timeout." >&2
+          exit 1
+
       - name: Ensure namespace exists
         run: |
           kubectl get ns ${NAMESPACE} || kubectl create ns ${NAMESPACE}
@@ -96,33 +123,21 @@ jobs:
           JOB_STATUS: ${{ job.status }}
         run: |
           set +e
-          # Собираем данные безопасно
           URL_FRONTEND=$(kubectl -n ${NAMESPACE} get svc frontend -o jsonpath='{.status.loadBalancer.ingress[0].hostname}{.status.loadBalancer.ingress[0].ip}' 2>/dev/null)
           LOGS_BACKEND=$(kubectl -n ${NAMESPACE} logs deploy/backend --tail=50 2>/dev/null || true)
           LOGS_FRONTEND=$(kubectl -n ${NAMESPACE} logs deploy/frontend --tail=50 2>/dev/null || true)
 
           if [ "$JOB_STATUS" = "success" ]; then
-            MSG="✅ Deploy success for ${GITHUB_REPOSITORY}@main (#${GITHUB_RUN_NUMBER})
-    Commit: ${IMAGE_TAG}
-  Frontend: ${URL_FRONTEND}"
+            MSG="✅ Deploy success for ${GITHUB_REPOSITORY}@main (#${GITHUB_RUN_NUMBER})\nCommit: ${IMAGE_TAG}\nFrontend: ${URL_FRONTEND}"
           else
-        # Урезаем логи, чтобы не превысить лимит 4096 символов Telegram
             trim() { head -c 1800; }
             LOGS_BACKEND_TRIM=$(echo "$LOGS_BACKEND" | trim)
             LOGS_FRONTEND_TRIM=$(echo "$LOGS_FRONTEND" | trim)
-            MSG="❌ Deploy failed for ${GITHUB_REPOSITORY}@main (#${GITHUB_RUN_NUMBER})
-  Commit: ${IMAGE_TAG}
-  Workflow: CD
+            MSG="❌ Deploy failed for ${GITHUB_REPOSITORY}@main (#${GITHUB_RUN_NUMBER})\nCommit: ${IMAGE_TAG}\nWorkflow: CD\n\nBackend logs (tail):\n${LOGS_BACKEND_TRIM}\n\nFrontend logs (tail):\n${LOGS_FRONTEND_TRIM}"
+          fi
 
-Backend logs (tail):
-  ${LOGS_BACKEND_TRIM}
-
-Frontend logs (tail):
-  ${LOGS_FRONTEND_TRIM}"
-  fi
-
-echo "Sending Telegram notification (status: $JOB_STATUS)"
-  RESP=$(curl -sS -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" \
-  -d chat_id="${{ secrets.TELEGRAM_TO }}" \
-  -d text="$MSG" || true)
-echo "Telegram response: $RESP" || true
+          echo "Sending Telegram notification (status: $JOB_STATUS)"
+          RESP=$(curl -sS -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_TO }}" \
+            -d text="$MSG" || true)
+          echo "Telegram response: $RESP" || true
