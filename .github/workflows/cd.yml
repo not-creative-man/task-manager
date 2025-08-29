@@ -43,7 +43,7 @@ jobs:
 
       - name: Notify Telegram (success)
         if: ${{ success() }}
-        uses: appleboy/telegram-action@v0.1.7
+        uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Notify Telegram (failure)
-        uses: appleboy/telegram-action@v0.1.7
+        uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
