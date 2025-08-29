@@ -128,3 +128,10 @@ jobs:
             LOGS_BACKEND_TRIM=$(echo "$LOGS_BACKEND" | trim)
             LOGS_FRONTEND_TRIM=$(echo "$LOGS_FRONTEND" | trim)
             MSG="❌ Deploy failed!"
+          fi
+
+                    echo "Sending Telegram notification (status: $JOB_STATUS)"
+                    RESP=$(curl -sS -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" \
+                      -d chat_id="${{ secrets.TELEGRAM_TO }}" \
+                      -d text="$MSG" || true)
+                    echo "Telegram response: $RESP" || true
