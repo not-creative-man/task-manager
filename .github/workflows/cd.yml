@@ -8,7 +8,6 @@ on:
 jobs:
   deploy:
     name: Deploy to Kubernetes
-    # Run only if CI succeeded and branch is main
     if: >
       ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.name == 'CI' }}
     runs-on: ubuntu-latest
@@ -123,16 +122,9 @@ jobs:
           LOGS_FRONTEND=$(kubectl -n ${NAMESPACE} logs deploy/frontend --tail=50 2>/dev/null || true)
 
           if [ "$JOB_STATUS" = "success" ]; then
-            MSG="✅ Deploy success for ${GITHUB_REPOSITORY}@main (#${GITHUB_RUN_NUMBER})\nCommit: ${IMAGE_TAG}\nFrontend: ${URL_FRONTEND}"
+            MSG="✅ Deploy success!\nFrontend: ${URL_FRONTEND}"
           else
             trim() { head -c 1800; }
             LOGS_BACKEND_TRIM=$(echo "$LOGS_BACKEND" | trim)
             LOGS_FRONTEND_TRIM=$(echo "$LOGS_FRONTEND" | trim)
-            MSG="❌ Deploy failed for ${GITHUB_REPOSITORY}@main (#${GITHUB_RUN_NUMBER})\nCommit: ${IMAGE_TAG}\nWorkflow: CD\n\nBackend logs (tail):\n${LOGS_BACKEND_TRIM}\n\nFrontend logs (tail):\n${LOGS_FRONTEND_TRIM}"
-          fi
-
-          echo "Sending Telegram notification (status: $JOB_STATUS)"
-          RESP=$(curl -sS -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" \
-            -d chat_id="${{ secrets.TELEGRAM_TO }}" \
-            -d text="$MSG" || true)
-          echo "Telegram response: $RESP" || true
+            MSG="❌ Deploy failed!"
