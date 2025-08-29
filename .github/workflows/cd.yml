@@ -1,0 +1,72 @@
+name: CD
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: 'latest'
+
+      - name: Set kubeconfig
+        run: |
+          echo "$KUBE_CONFIG" > kubeconfig
+          echo "KUBECONFIG written"
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Deploy to Kubernetes
+        env:
+          KUBECONFIG: ${{ github.workspace }}/kubeconfig
+        run: |
+          kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f k8s/mysql.yaml
+          kubectl apply -f k8s/backend.yaml
+          kubectl apply -f k8s/frontend.yaml
+
+      - name: Verify rollout
+        env:
+          KUBECONFIG: ${{ github.workspace }}/kubeconfig
+        run: |
+          kubectl -n task-manager rollout status deploy/backend --timeout=120s || exit 1
+          kubectl -n task-manager rollout status deploy/frontend --timeout=120s || exit 1
+
+      - name: Notify Telegram (success)
+        if: ${{ success() }}
+        uses: appleboy/telegram-action@v0.1.7
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            Deployment successful
+            Repo: ${{ github.repository }}
+            Commit: ${{ github.sha }}
+            Actor: ${{ github.actor }}
+            Environment: Kubernetes (task-manager)
+
+  notify-failure:
+    name: Notify Failure
+    if: ${{ github.event.workflow_run.conclusion != 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Telegram (failure)
+        uses: appleboy/telegram-action@v0.1.7
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            Deployment failed
+            Repo: ${{ github.repository }}
+            CI Conclusion: ${{ github.event.workflow_run.conclusion }}
+            Actor: ${{ github.actor }}
+            Check CI logs for details.
