@@ -8,10 +8,16 @@ on:
 
 jobs:
   deploy:
+    name: Deploy to Kubernetes
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout source that triggered CI
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.workflow_run.repository.full_name }}
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
 
       - name: Set up kubectl
         uses: azure/setup-kubectl@v4
@@ -25,14 +31,36 @@ jobs:
         env:
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
 
+      - name: Debug workspace contents
+        run: |
+          echo "Repository: ${{ github.event.workflow_run.repository.full_name }}"
+          echo "Head branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "Head SHA: ${{ github.event.workflow_run.head_sha }}"
+          echo "Workspace: $GITHUB_WORKSPACE"
+          pwd
+          git rev-parse --abbrev-ref HEAD || true
+          git rev-parse HEAD || true
+          ls -la
+          echo "List k8s dir:" && ls -la k8s || true
+          echo "List k8s files via git:" && git ls-tree --name-only -r HEAD | grep '^k8s/' || true
+
+      - name: Ensure k8s manifests present
+        run: |
+          if [ ! -d k8s ]; then
+            echo "ERROR: k8s directory is missing in this commit." >&2
+            exit 1
+          fi
+          if [ ! -f k8s/namespace.yaml ]; then
+            echo "WARNING: k8s/namespace.yaml not found; listing k8s/ to help debug:" >&2
+            ls -la k8s
+          fi
+
       - name: Deploy to Kubernetes
         env:
           KUBECONFIG: ${{ github.workspace }}/kubeconfig
         run: |
-          kubectl apply -f k8s/namespace.yaml
-          kubectl apply -f k8s/mysql.yaml
-          kubectl apply -f k8s/backend.yaml
-          kubectl apply -f k8s/frontend.yaml
+          # Apply the entire directory to avoid per-file path drift
+          kubectl apply -f k8s/
 
       - name: Verify rollout
         env:
