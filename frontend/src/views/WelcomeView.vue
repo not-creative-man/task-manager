@@ -5,7 +5,7 @@ import RouterButton from '@/components/RouterButton.vue'
 <template>
   <div class="welcome">
     <h1>How do you do, fellow kids?</h1>
-    <span>Let's start our journey!</span>
+    <span>Let's start our journey! &#127881;</span>
     <RouterButton msg="Log in" path="/login" />
     <span>Not already logged in? Let's <RouterLink to="/register">register</RouterLink> right now!</span>
   </div>
