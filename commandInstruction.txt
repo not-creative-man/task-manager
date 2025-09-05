@@ -1,5 +1,5 @@
 # Настройка подключения к ВМ
-ssh -i ~/.ssh/yandex_cloud_new ubuntu@89.169.130.99 # для запуска подключения к виртуалке
+ssh -i ~/.ssh/yandex_cloud_new ubuntu@62.84.116.137 # для запуска подключения к виртуалке
 
 ## Создание ВМ, регистри и кластера
 terraform init
@@ -34,11 +34,44 @@ yc container registry configure-docker # Авторизация в Container Reg
 ./docker-build-and-push.sh
 
 
+
 ## Запуск подов
 kubectl apply -f k8s/namespace.yaml
 kubectl apply -f k8s/mysql.yaml
 kubectl apply -f k8s/backend.yaml
 kubectl apply -f k8s/frontend.yaml
+
+# Создаем пространство имен для мониторинга
+kubectl apply -f k8s/monitoring-namespace.yaml
+
+# Применяем RBAC для Prometheus
+kubectl apply -f k8s/prometheus-rbac.yaml
+
+# Применяем конфигурацию Prometheus
+kubectl apply -f k8s/prometheus-config.yaml
+
+# Разворачиваем Prometheus
+kubectl apply -f k8s/prometheus-deployment.yaml
+
+# Настраиваем источник данных для Grafana
+kubectl apply -f k8s/grafana-datasource-config.yaml
+
+# Применяем дашборды Grafana
+kubectl apply -f k8s/grafana-dashboards.yaml
+
+# Разворачиваем Grafana
+kubectl apply -f k8s/grafana-deployment.yaml
+
+
+
+# Получение нод для получения external-ip для grafana
+kubectl get nodes -o wide
+
+
+
+# Получение EXTERNAL-IP
+kubectl -n task-manager get svc frontend -o wide
+
 
 
 ## Перезагрузка пода
@@ -47,7 +80,7 @@ kubectl -n task-manager rollout status deployment/backend
 
 
 ## Перезагрузка пода с imagePullPolicy: IfNotPresent через иммутабельные теги
-kubectl -n task-manager set image deployment/backend backend=cr.yandex/crpvquotsnkpcsh1hs6v/task-manager-backend:<NEW_TAG> --record
+kubectl -n task-manager set image deployment/backend backend=cr.yandex/crpvgh0sslbb16bufevk/task-manager-backend:<NEW_TAG> --record
 
 
 ## Мониторинг: установка kube-prometheus-stack (Prometheus + Grafana)
@@ -57,29 +90,13 @@ helm repo add prometheus-community https://prometheus-community.github.io/helm-c
 helm repo update
 helm upgrade --install kps prometheus-community/kube-prometheus-stack -n monitoring
 
-# Применить ServiceMonitor для бэкенда (уже добавлен в k8s/backend.yaml)
-kubectl apply -f k8s/backend.yaml
-
-# Доступ к Grafana
-kubectl -n monitoring get svc kps-grafana
-kubectl -n monitoring port-forward svc/kps-grafana 3001:80
-# Логин/пароль из секрета
-kubectl -n monitoring get secret kps-grafana -o jsonpath='{.data.admin-user}' | base64 -d; echo
-kubectl -n monitoring get secret kps-grafana -o jsonpath='{.data.admin-password}' | base64 -d; echo
-
-
-## Проверка метрик и HPA
-# Проверить, что метрики собираются
-kubectl -n task-manager port-forward svc/backend 3000:3000 # в другой вкладке
-curl -s http://localhost:3000/metrics | head
-
 # Проверить HPA
 kubectl -n task-manager get hpa backend-hpa
 kubectl -n task-manager get hpa backend-hpa -w
 
 # Дать нагрузку (пример с hey)
 # brew install hey
-hey -z 60s -c 50 http://<EXTERNAL_IP_OR_LB>/api/health
+hey -z 60s -c 50 http://<EXTERNAL_IP_OR_LB>/api/health # hey -z 60s -c 50 http://89.169.141.236:30001/api/health
 
 # Наблюдать рост реплик бэкенда
 kubectl -n task-manager get deploy backend -w

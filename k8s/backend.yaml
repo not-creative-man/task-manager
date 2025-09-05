@@ -20,7 +20,8 @@ spec:
     - name: http
       port: 3000
       targetPort: 3000
-  type: ClusterIP
+      nodePort: 30001
+  type: NodePort
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -62,7 +63,7 @@ spec:
               memory: "32Mi"
       containers:
         - name: backend
-          image: cr.yandex/crpvquotsnkpcsh1hs6v/task-manager-backend:1.0.0
+          image: cr.yandex/crpvgh0sslbb16bufevk/task-manager-backend:latest
           imagePullPolicy: Always
           command:
             - node

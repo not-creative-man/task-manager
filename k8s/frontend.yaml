@@ -33,7 +33,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: cr.yandex/crpvquotsnkpcsh1hs6v/task-manager-frontend:latest
+          image: cr.yandex/crpvgh0sslbb16bufevk/task-manager-frontend:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 80

@@ -1,0 +1,38 @@
+# Проверка доступности targets
+up{job="backend"}
+
+# Количество доступных инстансов
+count(up{job="backend"} == 1)
+
+# Процент доступности
+avg(up{job="backend"}) * 100
+
+
+# Общее количество запросов
+sum(rate(http_requests_total{job="backend"}[5m]))
+
+# Запросы по методам
+sum by(method) (rate(http_requests_total{job="backend"}[5m]))
+
+# Ошибки (status code 5xx)
+sum(rate(http_requests_total{job="backend", status=~"5.."}[5m]))
+
+# 95-й перцентиль времени ответа
+histogram_quantile(0.95,
+  sum(rate(http_request_duration_seconds_bucket{job="backend"}[5m]))
+  by (le))
+
+# Среднее время ответа
+rate(http_request_duration_seconds_sum{job="backend"}[5m]) /
+rate(http_request_duration_seconds_count{job="backend"}[5m])
+
+# CPU usage
+process_cpu_seconds_total{job="backend"}
+
+# Memory usage
+process_resident_memory_bytes{job="backend"}
+
+
+# Average response time
+rate(http_request_duration_seconds_sum{job="backend"}[1h]) /
+rate(http_request_duration_seconds_count{job="backend"}[1h])
