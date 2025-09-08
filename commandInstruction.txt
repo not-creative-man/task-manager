@@ -1,5 +1,5 @@
 # Настройка подключения к ВМ
-ssh -i ~/.ssh/yandex_cloud_new ubuntu@62.84.116.137 # для запуска подключения к виртуалке
+ssh -i ~/.ssh/yandex_cloud_new ubuntu@84.201.130.92 # для запуска подключения к виртуалке
 
 ## Создание ВМ, регистри и кластера
 terraform init
@@ -37,12 +37,12 @@ yc container registry configure-docker # Авторизация в Container Reg
 
 ## Запуск подов
 kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/monitoring-namespace.yaml
 kubectl apply -f k8s/mysql.yaml
 kubectl apply -f k8s/backend.yaml
 kubectl apply -f k8s/frontend.yaml
 
 # Создаем пространство имен для мониторинга
-kubectl apply -f k8s/monitoring-namespace.yaml
 
 # Применяем RBAC для Prometheus
 kubectl apply -f k8s/prometheus-rbac.yaml
@@ -80,7 +80,7 @@ kubectl -n task-manager rollout status deployment/backend
 
 
 ## Перезагрузка пода с imagePullPolicy: IfNotPresent через иммутабельные теги
-kubectl -n task-manager set image deployment/backend backend=cr.yandex/crpvgh0sslbb16bufevk/task-manager-backend:<NEW_TAG> --record
+kubectl -n task-manager set image deployment/backend backend=cr.yandex/crpks7a7efu72hvus8es/task-manager-backend:<NEW_TAG> --record
 
 
 ## Мониторинг: установка kube-prometheus-stack (Prometheus + Grafana)

@@ -47,8 +47,10 @@ resource "yandex_kubernetes_cluster" "cluster" {
   name        = "task-manager-cluster"
   network_id  = yandex_vpc_network.network.id
 
+  release_channel = "REGULAR"
+
   master {
-    version = "1.29"
+    version  = "1.30"
     public_ip = true
     zonal {
       zone      = "ru-central1-a"
@@ -69,7 +71,7 @@ resource "yandex_kubernetes_cluster" "cluster" {
 resource "yandex_kubernetes_node_group" "workers" {
   cluster_id = yandex_kubernetes_cluster.cluster.id
   name       = "worker-group"
-  version    = "1.29"
+  version    = "1.30"
 
   instance_template {
     platform_id = "standard-v2"

@@ -50,7 +50,7 @@ spec:
           command: ['sh', '-c', 'until nc -z mysql 3306; do echo waiting for mysql; sleep 2; done']
           securityContext:
             allowPrivilegeEscalation: false
-            runAsNonRoot: true
+            # runAsNonRoot: true
             readOnlyRootFilesystem: true
             capabilities:
               drop: ["ALL"]
@@ -63,7 +63,7 @@ spec:
               memory: "32Mi"
       containers:
         - name: backend
-          image: cr.yandex/crpvgh0sslbb16bufevk/task-manager-backend:latest
+          image: cr.yandex/crpks7a7efu72hvus8es/task-manager-backend:latest
           imagePullPolicy: Always
           command:
             - node
@@ -85,6 +85,8 @@ spec:
           securityContext:
             allowPrivilegeEscalation: false
             runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
             readOnlyRootFilesystem: true
             capabilities:
               drop: ["ALL"]

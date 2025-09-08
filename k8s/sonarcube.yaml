@@ -26,6 +26,8 @@ spec:
               value: "sonar"
             - name: SONAR_JDBC_PASSWORD
               value: "sonar"
+            - name: SONAR_ES_BOOTSTRAP_CHECKS_DISABLE
+              value: "true"
           resources:
             requests:
               memory: "2Gi"

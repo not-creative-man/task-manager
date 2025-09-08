@@ -109,8 +109,8 @@ YC_FOLDER_ID=${var.folder_id}
 YC_CLOUD_ID=${var.cloud_id}
 EOF
 
-    # Запускаем Ansible с увеличенными таймаутами
-    ANSIBLE_CONFIG=ansible.cfg ansible-playbook -i ${path.module}/../ansible/inventory.yml ${path.module}/../ansible/install-docker.yml -vvv
+    # Запускаем Ansible с увеличенными таймаутами и корректным конфигом
+    ANSIBLE_CONFIG=${path.module}/../ansible/ansible.cfg ansible-playbook -i ${path.module}/../ansible/inventory.yml ${path.module}/../ansible/install-docker.yml -vvv
   EOT
   }
 }

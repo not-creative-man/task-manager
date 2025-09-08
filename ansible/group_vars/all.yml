@@ -1,6 +1,6 @@
 # Настройки Yandex Container Registry
 yc_registry: cr.yandex
-yc_registry_id: crpvgh0sslbb16bufevk  # ID вашего реестра
+yc_registry_id: crpks7a7efu72hvus8es  # ID вашего реестра
 yc_image_prefix: "{{ yc_registry }}/{{ yc_registry_id }}"
 
 # Настройки приложения
