@@ -25,12 +25,9 @@ jobs:
       - name: Setup kubectl
         uses: azure/setup-kubectl@v4
 
-      - name: Configure kubeconfig
+      - name: Prepare kube dir
         run: |
           mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
-          chmod 600 $HOME/.kube/config
-          kubectl config current-context || true
 
       - name: Install Yandex Cloud CLI
         run: |
@@ -41,11 +38,26 @@ jobs:
       - name: Configure YC auth
         env:
           YC_OAUTH_TOKEN: ${{ secrets.YC_OAUTH_TOKEN }}
+          YC_CLOUD_ID: ${{ secrets.YC_CLOUD_ID }}
+          YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
         run: |
           # Configure yc to be able to exchange OAuth to IAM token
           $HOME/yandex-cloud/bin/yc config set token "$YC_OAUTH_TOKEN"
+          $HOME/yandex-cloud/bin/yc config set cloud-id "$YC_CLOUD_ID"
+          $HOME/yandex-cloud/bin/yc config set folder-id "$YC_FOLDER_ID"
           # Optional: disable interactive prompts
           $HOME/yandex-cloud/bin/yc config set core.retry-interval 0s || true
+
+      - name: Fetch kubeconfig from YC
+        env:
+          YC_CLUSTER_ID: ${{ secrets.YC_CLUSTER_ID }}
+        run: |
+          # Obtain kubeconfig for the managed Kubernetes cluster with public endpoint
+          $HOME/yandex-cloud/bin/yc managed-kubernetes cluster get-credentials \
+            --id "$YC_CLUSTER_ID" \
+            --external \
+            --force
+          kubectl config current-context || true
 
       - name: Patch kubeconfig exec path to yc
         run: |
@@ -53,6 +65,15 @@ jobs:
           sed -i 's|/Users/islebedev/yandex-cloud/bin/yc|yc|g' $HOME/.kube/config
           sed -i 's|/home/runner/.*/yc|yc|g' $HOME/.kube/config || true
           echo "Patched kubeconfig:" && grep -n "command: yc" -n $HOME/.kube/config || true
+
+      - name: Check Kubernetes API connectivity
+        run: |
+          set -e
+          echo "kubectl version:"
+          kubectl version --short --request-timeout=20s || true
+          echo "cluster-info:"
+          kubectl cluster-info --request-timeout=20s
+          kubectl get ns -A --request-timeout=20s >/dev/null
 
       - name: Wait for images to appear in YCR
         env:
@@ -130,8 +151,8 @@ jobs:
             MSG="❌ Deploy failed!"
           fi
 
-                    echo "Sending Telegram notification (status: $JOB_STATUS)"
-                    RESP=$(curl -sS -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" \
-                      -d chat_id="${{ secrets.TELEGRAM_TO }}" \
-                      -d text="$MSG" || true)
-                    echo "Telegram response: $RESP" || true
+          echo "Sending Telegram notification (status: $JOB_STATUS)"
+          RESP=$(curl -sS -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_TO }}" \
+            -d text="$MSG" || true)
+          echo "Telegram response: $RESP" || true
