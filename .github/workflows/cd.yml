@@ -134,6 +134,7 @@ jobs:
 
   notify:
     name: Notify Telegram
+    needs: deploy
     runs-on: ubuntu-latest
     steps:
       - name: Notify Telegram (Final)
