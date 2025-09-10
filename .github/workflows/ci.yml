@@ -210,14 +210,11 @@ jobs:
         with:
           args: >-
             -Dsonar.qualitygate.wait=true
-            -Dsonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info
-            -Dsonar.javascript.lcov.reportPaths=backend/coverage/lcov.info
-            -Dsonar.coverage.exclusions=**/test/**,**/*.spec.js,**/*.test.js
-            -Dsonar.testExecutionReportPaths=test-report.xml
-            -Dsonar.test.inclusions=**/*.spec.js,**/*.test.js
+            -Dsonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info,backend/coverage/lcov.info
+            -Dsonar.coverage.exclusions=**/test/**,**/*.spec.js,**/*.test.js,**/*.spec.ts,**/*.test.ts,frontend/dist/**
+            -Dsonar.test.inclusions=**/*.spec.js,**/*.test.js,**/*.spec.ts,**/*.test.ts
             -Dsonar.javascript.node.maxspace=4096
             -Dsonar.javascript.node.maxoldspacesize=4096
-            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
 
       - name: SonarQube Quality Gate
         uses: SonarSource/sonarqube-quality-gate-action@v1
