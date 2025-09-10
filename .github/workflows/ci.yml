@@ -156,67 +156,88 @@ jobs:
           name: frontend-coverage-artifact
           path: frontend/coverage
 
-#  security-scan:
-#    name: Security Scan (Trivy)
-#    runs-on: ubuntu-latest
-#    needs: [build]
-#    steps:
-#      - uses: actions/checkout@v4
-#
-#      - name: Run Trivy FS scan
-#        uses: aquasecurity/trivy-action@0.20.0
-#        with:
-#          scan-type: 'fs'
-#          scanners: 'vuln,secret'
-#          severity: 'CRITICAL,HIGH'
-#          ignore-unfixed: true
-#          format: 'table'
-#          exit-code: '1'
-#          vuln-type: 'os,library'
-#
-#      - name: Run Trivy config scan (Kubernetes manifests)
-#        uses: aquasecurity/trivy-action@0.20.0
-#        with:
-#          scan-type: 'config'
-#          hide-progress: true
-#          format: 'table'
-#          exit-code: '1'
-#          scan-ref: 'k8s'
+  #  security-scan:
+  #    name: Security Scan (Trivy)
+  #    runs-on: ubuntu-latest
+  #    needs: [build]
+  #    steps:
+  #      - uses: actions/checkout@v4
+  #
+  #      - name: Run Trivy FS scan
+  #        uses: aquasecurity/trivy-action@0.20.0
+  #        with:
+  #          scan-type: 'fs'
+  #          scanners: 'vuln,secret'
+  #          severity: 'CRITICAL,HIGH'
+  #          ignore-unfixed: true
+  #          format: 'table'
+  #          exit-code: '1'
+  #          vuln-type: 'os,library'
+  #
+  #      - name: Run Trivy config scan (Kubernetes manifests)
+  #        uses: aquasecurity/trivy-action@0.20.0
+  #        with:
+  #          scan-type: 'config'
+  #          hide-progress: true
+  #          format: 'table'
+  #          exit-code: '1'
+  #          scan-ref: 'k8s'
 
   sonar:
     name: SonarQube Analysis
     runs-on: ubuntu-latest
-    needs: [test] # security-scan
+    needs: [build, test]
+    
     steps:
       - uses: actions/checkout@v4
-
-      - name: Download Backend Coverage Artifact
-        uses: actions/download-artifact@v4
         with:
-          name: backend-coverage-artifact
-          path: backend/coverage
-
-      - name: Download Frontend Coverage Artifact
-        uses: actions/download-artifact@v4
+          fetch-depth: 0  # Получаем полную историю коммитов
+          
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
         with:
-          name: frontend-coverage-artifact
-          path: frontend/coverage
-
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v2
+          java-version: '17'
+          distribution: 'temurin'
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install dependencies
+        run: |
+          cd backend
+          npm ci
+          cd ../frontend
+          npm ci
+          
+      - name: Run tests with coverage (Backend)
+        working-directory: ./backend
+        run: |
+          npm run test:cov
+          
+      - name: Run tests with coverage (Frontend)
+        working-directory: ./frontend
+        run: |
+          npm run test:unit -- --coverage
+          
+      - name: Run SonarQube Scanner
         env:
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >-
-            -Dsonar.qualitygate.wait=true
-
-      - name: SonarQube Quality Gate
-        uses: SonarSource/sonarqube-quality-gate-action@v1
-        timeout-minutes: 5
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          docker run --rm \
+            -e SONAR_SCANNER_OPTS="-Dsonar.projectKey=Task-Manager-Project" \
+            -e SONAR_HOST_URL="${SONAR_HOST_URL}" \
+            -e SONAR_LOGIN="${SONAR_TOKEN}" \
+            -v "$(pwd):/usr/src" \
+            sonarsource/sonar-scanner-cli
+            
+      - name: Check Quality Gate status
+        uses: sonarsource/sonarqube-quality-gate-action@v2
         env:
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
   build-and-push:
     name: Build and Push Images
