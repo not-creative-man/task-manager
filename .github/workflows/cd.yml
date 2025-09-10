@@ -132,22 +132,18 @@ jobs:
           kubectl -n ${NAMESPACE} set image deployment/backend backend=${REGISTRY}/${REGISTRY_ID}/task-manager-backend:${IMAGE_TAG}
           kubectl -n ${NAMESPACE} set image deployment/frontend frontend=${REGISTRY}/${REGISTRY_ID}/task-manager-frontend:${IMAGE_TAG}
 
+  notify:
+    name: Notify Telegram
+    steps:
       - name: Notify Telegram (Final)
         if: always()
         env:
           JOB_STATUS: ${{ job.status }}
         run: |
-          set +e
-          URL_FRONTEND=$(kubectl -n ${NAMESPACE} get svc frontend -o jsonpath='{.status.loadBalancer.ingress[0].hostname}{.status.loadBalancer.ingress[0].ip}' 2>/dev/null)
-          LOGS_BACKEND=$(kubectl -n ${NAMESPACE} logs deploy/backend --tail=50 2>/dev/null || true)
-          LOGS_FRONTEND=$(kubectl -n ${NAMESPACE} logs deploy/frontend --tail=50 2>/dev/null || true)
 
           if [ "$JOB_STATUS" = "success" ]; then
-            MSG="✅ Deploy success!\nFrontend: ${URL_FRONTEND}"
+            MSG="✅ Deploy success!"
           else
-            trim() { head -c 1800; }
-            LOGS_BACKEND_TRIM=$(echo "$LOGS_BACKEND" | trim)
-            LOGS_FRONTEND_TRIM=$(echo "$LOGS_FRONTEND" | trim)
             MSG="❌ Deploy failed!"
           fi
 
