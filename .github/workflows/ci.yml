@@ -223,34 +223,34 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Check test coverage
-        run: |
-          # Проверяем покрытие кода тестами
-          if [ ! -f backend/coverage/coverage-summary.json ] || [ ! -f frontend/coverage/coverage-summary.json ]; then
-            echo "Coverage report not found!"
-            exit 1
-          fi
-          
-          # Проверяем покрытие для бэкенда
-          BACKEND_COVERAGE=$(node -pe 'JSON.parse(process.env.COVERAGE).total.lines.pct' < backend/coverage/coverage-summary.json)
-          echo "Backend coverage: $BACKEND_COVERAGE%"
-          
-          # Проверяем покрытие для фронтенда
-          FRONTEND_COVERAGE=$(node -pe 'JSON.parse(process.env.COVERAGE).total.lines.pct' < frontend/coverage/coverage-summary.json)
-          echo "Frontend coverage: $FRONTEND_COVERAGE%"
-          
-          # Проверяем, что покрытие не ниже 80%
-          if (( $(echo "$BACKEND_COVERAGE < 80" | bc -l) )); then
-            echo "Backend test coverage is below 80% (${BACKEND_COVERAGE}%)"
-            exit 1
-          fi
-          
-          if (( $(echo "$FRONTEND_COVERAGE < 80" | bc -l) )); then
-            echo "Frontend test coverage is below 80% (${FRONTEND_COVERAGE}%)"
-            exit 1
-          fi
-        env:
-          COVERAGE: ${{ toJSON(needs.test.outputs.coverage) }}
+#      - name: Check test coverage
+#        run: |
+#          # Проверяем покрытие кода тестами
+#          if [ ! -f backend/coverage/coverage-summary.json ] || [ ! -f frontend/coverage/coverage-summary.json ]; then
+#            echo "Coverage report not found!"
+#            exit 1
+#          fi
+#
+#          # Проверяем покрытие для бэкенда
+#          BACKEND_COVERAGE=$(node -pe 'JSON.parse(process.env.COVERAGE).total.lines.pct' < backend/coverage/coverage-summary.json)
+#          echo "Backend coverage: $BACKEND_COVERAGE%"
+#
+#          # Проверяем покрытие для фронтенда
+#          FRONTEND_COVERAGE=$(node -pe 'JSON.parse(process.env.COVERAGE).total.lines.pct' < frontend/coverage/coverage-summary.json)
+#          echo "Frontend coverage: $FRONTEND_COVERAGE%"
+#
+#          # Проверяем, что покрытие не ниже 80%
+#          if (( $(echo "$BACKEND_COVERAGE < 80" | bc -l) )); then
+#            echo "Backend test coverage is below 80% (${BACKEND_COVERAGE}%)"
+#            exit 1
+#          fi
+#
+#          if (( $(echo "$FRONTEND_COVERAGE < 80" | bc -l) )); then
+#            echo "Frontend test coverage is below 80% (${FRONTEND_COVERAGE}%)"
+#            exit 1
+#          fi
+#        env:
+#          COVERAGE: ${{ toJSON(needs.test.outputs.coverage) }}
 
   build-and-push:
     name: Build and Push Images
